@@ -1,0 +1,12 @@
+#ifndef NBFINGER_GLOBAL_H
+#define NBFINGER_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(NBFINGER_LIBRARY)
+#  define NBFINGERSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define NBFINGERSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // NBFINGER_GLOBAL_H

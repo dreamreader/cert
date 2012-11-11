@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components>
+  <component>
+  <cid>{7F4D6E5A-4950-493C-84F9-A6EAE368AE9D}</cid>
+  <specver></specver>
+  <productver>1.0.0.0</productver>
+  <vendor>ФГУП "ПНИЭИ"</vendor>
+  <descr>Компонент ввода отпечатков пальцев с помощью сканера Futronic FS-80</descr>
+  <title>Отпечаток пальца Futronic FS-80</title>
+  <location></location>
+  <interfaces>
+    <interface>
+      <iid>{4077DC01-8AB9-4322-B37E-26C2A4A27A2C}</iid>
+    </interface>
+    <interface>
+      <iid>{D262F70D-062D-4a50-B7C4-3DFD47CBDEE4}</iid>
+    </interface>
+  </interfaces>
+  </component>
+</components>

@@ -1,0 +1,7 @@
+LIBRARY	"nbhandwr.dll"
+VERSION 0.1
+EXPORTS
+	
+	NbQueryComponent		@1
+	NbRegisterComponents	@2
+	NbCanUnload				@4

@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/base">
+        <file alias="simgbase">resources/simgbaseHW.bim</file>
+        <file alias="sprmbase">resources/simgbaseHW.prm</file>
+    </qresource>
+    <qresource prefix="/info">
+        <file alias="proc">resources/proc.xml</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file alias="penImg">resources/qt_pen.png</file>
+    </qresource>
+</RCC>
