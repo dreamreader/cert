@@ -31,25 +31,25 @@ SOURCES += main.cpp\
     ../BCC/nb/Data.cpp \
     ../BCC/nb/Container.cpp \
     ../BCC/nb/Bim.cpp \
-    ../BCC/protocol/testquery.cpp \
-    ../BCC/protocol/startsignaturequery.cpp \
-    ../BCC/protocol/startregisterquery.cpp \
-    ../BCC/protocol/query.cpp \
-    ../BCC/protocol/statsquery.cpp \
-    ../BCC/protocol/passwordquery.cpp \
-    ../BCC/protocol/log.cpp \
-    ../BCC/protocol/documentquery.cpp \
-    ../BCC/protocol/containerquery.cpp \
-    ../BCC/protocol/bimparametersquery.cpp \
-    ../BCC/protocol/resultquery.cpp \
     ../BCC/nb/Statistics.cpp \
     ../BCC/nb/Processor.cpp \
     ../BCC/nb/BimBase.cpp \
-    SchemeConstructor.cpp \
     ../BCC/nb/Provider.cpp \
-    ../BCC/protocol/enumeratecontainersquery.cpp \
-    ../BCC/protocol/containernamesquery.cpp \
-    onetimepassword.cpp
+    SchemeConstructor.cpp \
+    onetimepassword.cpp \
+    ../BCC/protocol/testquery.cpp \
+    ../BCC/protocol/statsquery.cpp \
+    ../BCC/protocol/startsignaturequery.cpp \
+    ../BCC/protocol/startregisterquery.cpp \
+    ../BCC/protocol/signaturequery.cpp \
+    ../BCC/protocol/resultquery.cpp \
+    ../BCC/protocol/query.cpp \
+    ../BCC/protocol/log.cpp \
+    ../BCC/protocol/getcontainerquery.cpp \
+    ../BCC/protocol/containerquery.cpp \
+    ../BCC/protocol/bimparametersquery.cpp \
+    ../BCC/protocol/authquery.cpp \
+    ../BCC/protocol/documentquery.cpp
 
 HEADERS += \
     client.h \
@@ -80,28 +80,26 @@ HEADERS += \
     ../BCC/nb/Container.h \
     ../BCC/nb/common.h \
     ../BCC/nb/Bim.h \
-    ../BCC/protocol/testquery.h \
-    ../BCC/protocol/startsignaturequery.h \
-    ../BCC/protocol/startregisterquery.h \
-    ../BCC/protocol/statsquery.h \
-    ../BCC/protocol/passwordquery.h \
-    ../BCC/protocol/nbqueryheader.h \
-    ../BCC/protocol/log.h \
-    ../BCC/protocol/indicatorquery.h \
-    ../BCC/protocol/documentquery.h \
-    ../BCC/protocol/containerquery.h \
-    ../BCC/protocol/bimparametersquery.h \
-    ../BCC/protocol/queries.h \
-    ../BCC/protocol/query.h \
-    ../BCC/protocol/resultquery.h \
     ../BCC/nb/Statistics.h \
     ../BCC/nb/Processor.h \
     ../BCC/nb/ComponentInfos.h \
     ../BCC/nb/BimBase.h \
-    SchemeConstructor.h \
     ../BCC/nb/Provider.h \
     ../BCC/nb/ModuleInfo.h \
-    ../BCC/protocol/Query.h \
-    ../BCC/protocol/enumeratecontainersquery.h \
-    ../BCC/protocol/containernamesquery.h \
-    onetimepassword.h
+    SchemeConstructor.h \
+    onetimepassword.h \
+    ../BCC/protocol/testquery.h \
+    ../BCC/protocol/statsquery.h \
+    ../BCC/protocol/startsignaturequery.h \
+    ../BCC/protocol/startregisterquery.h \
+    ../BCC/protocol/signaturequery.h \
+    ../BCC/protocol/resultquery.h \
+    ../BCC/protocol/query.h \
+    ../BCC/protocol/queries.h \
+    ../BCC/protocol/nbqueryheader.h \
+    ../BCC/protocol/log.h \
+    ../BCC/protocol/getcontainerquery.h \
+    ../BCC/protocol/containerquery.h \
+    ../BCC/protocol/bimparametersquery.h \
+    ../BCC/protocol/authquery.h \
+    ../BCC/protocol/documentquery.h

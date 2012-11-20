@@ -44,23 +44,35 @@ public:
   bool checkServer();
 
 private:
-  /* Перечислить имена контейнеров для пользователя
+  /* Выполнить аутентификацию
    *
    *  \return false если возникла ошибка протокола
    */
-  bool enumerateContainers(Query::QueryHeaderBlock &header);
+  bool authenticate(Query::QueryHeaderBlock &header);
+
+  /* Выполнить биометрическую аутентификацию
+   *
+   *  \return false если возникла ошибка протокола
+   */
+  bool authenticateBio(Query::QueryHeaderBlock &header);
+
+  /* Создать одноразовый контейнер для биометрической аутентификации
+   *
+   *  \return false если возникла ошибка протокола
+   */
+  bool createContainer(Query::QueryHeaderBlock &header);
 
   /* Запустить задачу регистрации
    *
    *  \return false если возникла ошибка протокола
    */
-  bool startRegister(Query::QueryHeaderBlock &header);
+  bool registerContainer(Query::QueryHeaderBlock &header);
 
   /* Запустить задачу подписывания документа
    *
    *  \return false если возникла ошибка протокола
    */
-  bool startSignature(Query::QueryHeaderBlock &header);
+  bool signData(Query::QueryHeaderBlock &header);
 
   /* Остановить выполнение задачи
    *

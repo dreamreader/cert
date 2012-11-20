@@ -1,4 +1,4 @@
-#include "Query.h"
+#include "query.h"
 
 
 // Конструктор по умолчанию
@@ -109,7 +109,11 @@ bool Query::read(QTcpSocket &socket)
   Log::write("start read query");
 
   if (!_skipHeader)
+  {
     if (!_headerBlock->read(socket)) return false;
+  }
+  else
+    Log::write("skip header (already readed)");
 
   // Считать все прикреплённые блоки
   Log::write("data blocks:", (int)_headerBlock->getCount());
@@ -120,6 +124,8 @@ bool Query::read(QTcpSocket &socket)
     _dataBlocks.push_back(nBlock);
     _allocBlocks.push_back(nBlock);
   }
+
+  Log::write("available:", (int)socket.bytesAvailable());
 
   return true;
 }

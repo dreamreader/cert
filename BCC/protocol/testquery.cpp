@@ -8,7 +8,9 @@ TestQuery::TestQuery(): Query(Query::Test)
 // Создать запрос с заданными данными блоков
 bool TestQuery::create(QList<Nb::Matrix*> &bimParams)
 {
-  Log::Tab tab;
+  LOG
+
+  Query::create(Query::Test);
   Log::write("_bimBlock");
 
   _bimBlocks.clear();

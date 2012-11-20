@@ -1,10 +1,21 @@
 #include "onetimepassword.h"
 #include "../BCC/protocol/log.h"
 
-/* Конструктор
- *
- */
+
+// Конструктор по умолчанию
+OneTimePassword::OneTimePassword()
+{
+
+}
+
+// Конструктор
 OneTimePassword::OneTimePassword(unsigned size, bool random, uint8_t fillWith)
+{
+  create(size, random, fillWith);
+}
+
+// Создать
+void OneTimePassword::create(unsigned size, bool random, uint8_t fillWith)
 {
   _passwordMatrix.remeta(1, new Nb::Meta(size, Nb::MfI1, Nb::MtDiscreteOwn));
   _passwordMatrix.resize(1);
@@ -32,9 +43,7 @@ OneTimePassword::OneTimePassword(unsigned size, bool random, uint8_t fillWith)
   }
 }
 
-/* Приведение к матрице
- *
- */
+// Приведение к матрице
 OneTimePassword::operator nbMatrix&()
 {
   return (nbMatrix&)_passwordMatrix;
@@ -69,4 +78,27 @@ bool OneTimePassword::operator == (Nb::Matrix &matrix)
   Log::write("ham", (int)ham);
   return (ham == 0);
 }
+
+bool OneTimePassword::isEqual(Nb::Data &data)
+{
+  Log::write("compare");
+  if (data.size() < _passwordMatrix.meta()->sizeOfItem())
+  {
+
+  }
+  int ham(0);
+  Vbp vbp = (Vbp(data.data()));
+  for (unsigned b=0; b<_passwordMatrix.meta()->count(); b++)
+  {
+    if (_passwordMatrix.row(0).at(0).i1(b) !=
+        vbp.i1(b))
+    {
+      ham++;
+      //return false;
+    }
+  }
+  Log::write("ham", (int)ham);
+  return (ham == 0);
+}
+
 

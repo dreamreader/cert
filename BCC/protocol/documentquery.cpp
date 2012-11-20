@@ -8,7 +8,9 @@ DocumentQuery::DocumentQuery(): Query(Query::Data)
 // Создать запрос с заданными данными блоков
 bool DocumentQuery::create(Nb::Data &document)
 {
-  Log::Tab tab;
+  LOG
+
+  Query::create(Query::Data);
   Log::write("_documentBlock");
   _documentBlock.push(document, true);
 

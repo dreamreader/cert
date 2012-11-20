@@ -22,21 +22,22 @@ public:
   enum Type
   {
     Unknown = 0,
-    WantRegister = 1,
-    WantSignature = 2,
-    WantContainers = 3,
-    Ans = 4,
-    Data = 5,
-    WaitData = 6,
-    NoMoreData = 7,
-    RepeatData = 8,
-    Password = 9,
-    Granted = 10,
-    Denied = 11,
-    Stats = 12,
-    Test = 13,
-    Ok = 14,
-    Err = 15
+    WantAuth = 1,
+    WantAuthBio = 2,
+    WantContainer = 3,
+    WantRegister = 4,
+    WantSignature = 5,
+    Ans = 6,
+    Data = 7,
+    WaitData = 8,
+    RepeatData = 9,
+    Key = 10,
+    Granted = 11,
+    Denied = 12,
+    Stats = 13,
+    Test = 14,
+    Ok = 15,
+    Err = 16
   };
 
   bool              _skipHeader;         ///< заголовок присоединён

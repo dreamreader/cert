@@ -2,6 +2,8 @@
 #include <QFile>
 #include <QLibrary>
 #include <QDataStream>
+#include <QTextCodec>
+#include <QStringList>
 #include <time.h>
 #include "client.h"
 #include "schemeconstructor.h"
@@ -19,10 +21,14 @@ static const nbUuid nbccUUID_NBCC =
 static const nbUuid nbUUID_MODULESIGN =
   {0xa9ebf452,0xcf25,0x408c,{0x86,0x47,0x5e,0x3a,0x1d,0x57,0xff,0x4e}};
 
+#define tcpServerAddress      ("localhost")
+#define tcpServerPort         (31111)
+
 int main(int argc, char *argv[])
 {
   LOG
 
+  QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM866"));
   QCoreApplication a(argc, argv);
   QDataStream stream;
   srand(time(NULL));
@@ -30,7 +36,7 @@ int main(int argc, char *argv[])
   Log::open("d:/services/log_client.txt");
   Log::write("log opened!");
   Client client;
-  client.start();
+  client.start(tcpServerAddress, tcpServerPort);
 
   // Запихиваем схему в контейнер
   Nbc container  = SchemeConstructor::construct(0);
@@ -103,7 +109,7 @@ int main(int argc, char *argv[])
     Log::write("enumerateContainers failed with error", rslt, true);*/
 
 
-  rslt = client.startSign("Kulikov S", "Tablet 2155", container);
+  /*rslt = client.startSign("Kulikov S", "Tablet 27958", container);
   if (nbFAILED(rslt))
     Log::write("startSign failed with error", rslt, true);
 
@@ -117,7 +123,61 @@ int main(int argc, char *argv[])
   rslt = client.usePassword(truePwd, access);
   if (nbFAILED(rslt))
     Log::write("usePassword failed with error", rslt, true);
-  qDebug() << "access granted ? " << access;
+  qDebug() << "access granted ? " << access;*/
+
+  /*Nb::Data doc(10000);
+  Nb::Data sig;
+  rslt = client.signDocument(doc, sig);
+  if (nbFAILED(rslt))
+    Log::write("signDocument failed with error", rslt, true);*/
+
+  bool accessGranted;
+  Nb::Data key;
+  int32_t s;
+  key.fromString("test key", s, true);
+  QList<Nb::Matrix*> list1;
+  list1.push_back(&own);
+  OneTimePassword wrongM(256, false, 0x54);
+  OneTimePassword trueM(256, false, 0x55);
+  Nb::Data wrongPwd(256);
+  Nb::Data truePwd(256);
+  wrongPwd.copy( ((Nb::Matrix)wrongM).at(0, 0).u8, 256 );
+  truePwd.copy( ((Nb::Matrix)trueM).at(0, 0).u8, 256 );
+  Nb::Data doc(10000);
+  Nb::Data sig;
+
+  Log::write("\nAuthenticate\n");
+  rslt = client.authenticate("Kulikov S", key, accessGranted);
+
+  Log::write("\nRegister\n");
+  rslt = client.registerContainer("Kulikov S", container, list1, stats);
+
+  list1.clear();
+  list1.push_back(&test);
+  Log::write("Test 1");
+  rslt = client.testContainer(list1);
+  Log::write("Test 2");
+  rslt = client.testContainer(list1);
+  Log::write("Test 3");
+  rslt = client.testContainer(list1);
+
+  Log::write("Confirm");
+  rslt = client.confirmContainer();
+
+
+  Log::write("Get Container");
+  rslt = client.getContainer("Kulikov S", container);
+  qDebug() << container.size();
+
+  Log::write("Try authenticate");
+  rslt = client.authenticateBio("Kulikov S", wrongPwd, accessGranted);
+
+  Log::write("Try authenticate");
+  rslt = client.authenticateBio("Kulikov S", truePwd, accessGranted);
+
+  Log::write("Create signature");
+  rslt = client.signData("Kulikov S", doc, sig);
+  Log::write("sig: " + sig.toString());
 
   client.stop();
   Log::close();

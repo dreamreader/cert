@@ -10,7 +10,9 @@ EnumerateContainersQuery::EnumerateContainersQuery(): Query(Query::WantContainer
 // Создать запрос с заданными данными блоков
 bool EnumerateContainersQuery::create(QString &userId)
 {
-  Log::Tab tab;
+  LOG
+
+  Query::create(Query::WantContainers);
   Log::write("_userIdBlock");
   _userIdBlock.Block::push(Nb::Data(userId), true);
 

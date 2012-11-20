@@ -68,7 +68,7 @@ bool ServerDatabase::commitTransaction()
 }
 
 // Добавить ключ регистрации пользователю
-bool ServerDatabase::addRegisterKey(QString userId, QString regkey)
+bool ServerDatabase::addAuthenticationKey(QString userId, QString regkey)
 {
   LOG
   Log::write("add regkey call");
@@ -87,7 +87,7 @@ rollback:
 }
 
 // Проверить наличие ключа регистрации у пользователя
-bool ServerDatabase::checkRegisterKey(QString userId, QString regkey, bool &exist)
+bool ServerDatabase::useAuthenticationKey(QString userId, QString regkey, bool &ok)
 {
   LOG
   Log::write("check regkey call");
@@ -101,7 +101,11 @@ bool ServerDatabase::checkRegisterKey(QString userId, QString regkey, bool &exis
   if (!query.first()) goto rollback;
   Log::write("query columns count", query.record().count());
   if (!query.first() || (query.record().count() != 1))  goto rollback;
-  exist = (query.value(0) != 0);
+  ok = (query.value(0) != 0);
+
+  queryCode  = "DELETE FROM RegistrationKey ";
+  queryCode += "WHERE userId='" + userId + "' AND regkey='" + regkey + "'";
+  if (!query.exec(queryCode)) goto rollback;
   return true;
 
 rollback:
@@ -135,7 +139,7 @@ rollback:
 }
 
 // Добавить контейнер и сертификаты с указанным идентификатором для указанного пользователя
-bool ServerDatabase::addContainer(QString userId, QString containerId, Nb::Container &container, QList<Nb::Matrix*> &bimParams, QString &regkey)
+bool ServerDatabase::addContainer(QString userId, QString containerId, Nb::Container &container, QList<Nb::Matrix*> &bimParams)
 {
   LOG
   Log::write("add container call");
@@ -172,18 +176,19 @@ bool ServerDatabase::addContainer(QString userId, QString containerId, Nb::Conta
   QSqlQuery query(_base);
   QString queryCode;
 
-  queryCode  = "INSERT INTO ContainerName VALUES ";
-  queryCode += "(NULL, '"+userId+"', '"+containerId+"') ";
-  if (!query.exec(queryCode)) goto rollback;
+  bool exist;
+  containerExists(userId, containerId, exist);
+  if (!exist)
+  {
+    queryCode  = "INSERT INTO ContainerName VALUES ";
+    queryCode += "(NULL, '"+userId+"', '"+containerId+"') ";
+    if (!query.exec(queryCode)) goto rollback;
 
-  queryCode  = "INSERT INTO ContainerData VALUES ";
-  queryCode += "((SELECT N_Id FROM ContainerName WHERE rowid=last_insert_rowid()), ";
-  queryCode += "'" + containerFilePath + "', '" + bimsFilePath + "')";
-  if (!query.exec(queryCode)) goto rollback;
-
-  queryCode  = "DELETE FROM RegistrationKey ";
-  queryCode += "WHERE userId='" + userId + "' AND regkey='" + regkey + "'";
-  if (!query.exec(queryCode)) goto rollback;
+    queryCode  = "INSERT INTO ContainerData VALUES ";
+    queryCode += "((SELECT N_Id FROM ContainerName WHERE rowid=last_insert_rowid()), ";
+    queryCode += "'" + containerFilePath + "', '" + bimsFilePath + "')";
+    if (!query.exec(queryCode)) goto rollback;
+  }
   return true;
 
 rollback:

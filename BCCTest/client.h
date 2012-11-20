@@ -9,16 +9,13 @@
 #include "../bcc/nb/nb.h"
 #include "../bcc/nb/nbc.h"
 
-#define tcpServerAddress      ("localhost")
-#define tcpServerPort         (31111)
-
 /// Класс клиента биометрического удостоверяющего центра
 class Client: public QObject
 {
   Q_OBJECT
 
 private:
-  QTcpSocket  _socket;      ///< сокет
+  QTcpSocket  _socket;        ///< сокет
 
 public slots:
   void openSession();
@@ -34,7 +31,7 @@ public:
   /* Запустить сессию
    *
    */
-  bool start();
+  bool start(QString tcpAddress, int port);
 
   /* Остановить сессию
    *
@@ -42,55 +39,48 @@ public:
   bool stop();
 
 
-
-  /* Перечислить контейнеры пользователя
+  /* Получить контейнер
    *
    */
-  nbResult enumerateContainers(QString userId, QStringList &containers);
+  nbResult getContainer(QString userId, Nbc &container);
 
 
 
-  /* Начать регистрацию
+  /* Аутентифицироваться
    *
    */
-  nbResult startRegistration(QString userId, QString containerId, QString &regkey);
+  nbResult authenticate(QString userId, Nb::Data &key, bool &accessGranted);
 
-  /* Зарегистрировать указанный контейнер
+  /* Аутентифицироваться биометрически с помощью контейнера
    *
    */
-  nbResult registerContainer(Nbc &container);
+  nbResult authenticateBio(QString userId, Nb::Data &keyFromBiometrics, bool &accessGranted);
 
-  /* Зарегистрировать указанные биометрические данные
+
+
+  /* Зарегистрировать биометрический контейнер с указанными данными
+   * Доступно после любой аутентификации
    *
    */
-  nbResult registerData(QList<Nb::Matrix*> &ownParams, QList<Nb::Matrix*> &allParams, Statistics& stats, bool repeat = false);
+  nbResult registerContainer(QString userId, Nbc &container, QList<Nb::Matrix*> &ownParams, Statistics& stats);
 
-  /* Протестировать
+  /* Протестировать зарегистрированный контейнер
    *
    */
-  nbResult testData(QList<Nb::Matrix*> &testParams);
+  nbResult testContainer(QList<Nb::Matrix*> &testParams);
 
-  /* Подтверить регистрацию
+  /* Подтверить регистрацию контейнера
    *
    */
-  nbResult confirmRegistration();
+  nbResult confirmContainer();
 
 
 
-  /* Начать процедуру подписывания документа
+  /* Подписать данные биометрической меткой
+   * Доступно после биометрической аутентификации
    *
    */
-  nbResult startSign(QString userId, QString containerId, Nbc &container);
-
-  /* Использовать одноразовый пароль
-   *
-   */
-  nbResult usePassword(Nb::Matrix &password, bool &accessGranted);
-
-  /* Подписать документ
-   *
-   */
-  nbResult signDocument(Nb::Data document, Nb::Data signature);
+  nbResult signData(QString userId, Nb::Data &data, Nb::Data &signature);
 
 
 

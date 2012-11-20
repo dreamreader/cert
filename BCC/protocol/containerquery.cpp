@@ -1,7 +1,7 @@
 #include "containerquery.h"
 
 // Конструктор по умолчанию
-ContainerQuery::ContainerQuery(): Query(Query::Data)
+ContainerQuery::ContainerQuery(): Query(Query::Ans)
 {
 }
 
@@ -14,6 +14,7 @@ bool ContainerQuery::create(Nb::Container &container)
 {
   Log::Tab tab;
 
+  Query::create(Query::Data);
   _blocks.clear();
   for (int i=0; i<container.count(); i++)
   {

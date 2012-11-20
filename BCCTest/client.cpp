@@ -12,13 +12,13 @@ Client::~Client()
 }
 
 // Запустить сессию
-bool Client::start()
+bool Client::start(QString tcpAddress, int port)
 {
   LOG
 
   Log::write("connect to server...");
-  QHostAddress addr(tcpServerAddress);
-  _socket.connectToHost(QHostAddress::LocalHost, tcpServerPort);
+  QHostAddress addr(tcpAddress);
+  _socket.connectToHost(QHostAddress::LocalHost, port);
   _socket.waitForConnected(-1);
   return _socket.isOpen();
 }
@@ -35,48 +35,112 @@ bool Client::stop()
   return !_socket.isOpen();
 }
 
-// Перечислить контейнеры пользователя
-nbResult Client::enumerateContainers(QString userId, QStringList &containers)
+// Получить контейнер
+nbResult Client::getContainer(QString userId, Nbc &container)
 {
   LOG
 
   // ------------------------------------------------------------------------------------
-  // --- Отправить идентификаторы и ключ регистрации
+  // --- Отправить запрос на одноразовый контейнер
   // ---
-  Log::write("<--- WANT_CONTAINERS: enumerate containers");
-  EnumerateContainersQuery enumQuery;
-  enumQuery.create(userId);
-  enumQuery.write(_socket);
+  Log::write("<--- WantContainer: create one-time biometric container");
+  GetContainerQuery getContQuery;
+  getContQuery.create(userId);
+  getContQuery.write(_socket);
 
-  // ------------------------------------------------------------------------------------
-  // --- Получить запрос на ввод контейнера
   // ---
-  ContainerNamesQuery contQuery;
-  contQuery.read(_socket);
-  if (!contQuery.isOk() ||
-      !contQuery.get(containers))
+  // --- Получить динамически сформированный контейнер
+  // ---
+  ContainerQuery containerQuery;
+  containerQuery.read(_socket);
+  if (!containerQuery.isOk())
   {
     stop();
     return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
   }
-  Log::write("---> ANS: container names list");
+  containerQuery.container()->copy(container);
+  Log::write("---> Ans: container");
 
   return nbS_OK;
 }
 
+// Аутентифицироваться
+nbResult Client::authenticate(QString userId, Nb::Data &key, bool &accessGranted)
+{
+  LOG
 
-//Начать регистрацию
-nbResult Client::startRegistration(QString userId, QString containerId, QString &regkey)
+  // ------------------------------------------------------------------------------------
+  // --- Отправить запрос на аутентификацию
+  // ---
+  Log::write("<--- WantAuth: auth bstro blya!");
+  AuthQuery authQuery(false);
+  authQuery.create(userId, key);
+  authQuery.write(_socket);
+
+  // ------------------------------------------------------------------------------------
+  // --- Получить результат аутентификации
+  // ---
+  ResultQuery resultQuery;
+  resultQuery.read(_socket);
+  if (!resultQuery.isOk())
+  {
+    stop();
+    return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
+  }
+  accessGranted = resultQuery.accessGranted();
+  if (accessGranted)
+    Log::write("---> Access granted");
+  else
+    Log::write("---> Access denied");
+
+  return nbS_OK;
+}
+
+// Аутентифицироваться биометрически с помощью контейнера
+nbResult Client::authenticateBio(QString userId, Nb::Data &keyFromBiometrics, bool &accessGranted)
+{
+  LOG
+
+  // ------------------------------------------------------------------------------------
+  // --- Отправить запрос на аутентификацию
+  // ---
+  Log::write("<--- WantAuth: auth bstro blya!");
+  AuthQuery authQuery;
+  Log::write("key size", keyFromBiometrics.size());
+  authQuery.create(userId, keyFromBiometrics);
+  authQuery.write(_socket);
+
+  // ------------------------------------------------------------------------------------
+  // --- Получить результат аутентификации
+  // ---
+  ResultQuery resultQuery;
+  resultQuery.read(_socket);
+  if (!resultQuery.isOk())
+  {
+    stop();
+    return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
+  }
+  accessGranted = resultQuery.accessGranted();
+  if (accessGranted)
+    Log::write("---> Access granted");
+  else
+    Log::write("---> Access denied");
+
+  return nbS_OK;
+}
+
+// Зарегистрировать биометрический контейнер с указанными данными
+nbResult Client::registerContainer(QString userId, Nbc &container, QList<Nb::Matrix*> &ownParams, Statistics& stats)
 {
   LOG
   Query query;
 
   // ------------------------------------------------------------------------------------
-  // --- Отправить идентификаторы и ключ регистрации
+  // --- Отправить идентификатор пользователя
   // ---
-  Log::write("<--- WANT_REGISTER: start register");
+  Log::write("<--- WantRegister: register bstro blya!");
   StartRegisterQuery startRegQuery;
-  startRegQuery.create(userId, containerId, regkey);
+  startRegQuery.create(userId);
   startRegQuery.write(_socket);
 
   // ------------------------------------------------------------------------------------
@@ -89,22 +153,12 @@ nbResult Client::startRegistration(QString userId, QString containerId, QString 
     stop();
     return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
   }
-  Log::write("---> WAIT_DATA: server waiting for cointainer");
-
-  return nbS_OK;
-}
-
-
-// Зарегистрировать указанный контейнер
-nbResult Client::registerContainer(Nbc &container)
-{
-  LOG
-  Query query;
+  Log::write("---> WaitData: server waiting for cointainer");
 
   // ------------------------------------------------------------------------------------
   // --- Отправить контейнер
   // ---
-  Log::write("<--- DATA: send container");
+  Log::write("<--- Data: send container");
   ContainerQuery containerQuery;
   containerQuery.create(container);
   containerQuery.write(_socket);
@@ -119,24 +173,14 @@ nbResult Client::registerContainer(Nbc &container)
     stop();
     return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
   }
-  Log::write("---> WAIT_DATA: server waiting for own bims");
-
-  return nbS_OK;
-}
-
-
-// Зарегистрировать указанные биометрические данные
-nbResult Client::registerData(QList<Nb::Matrix*> &ownParams, QList<Nb::Matrix*> &allParams, Statistics& stats, bool repeat)
-{
-  LOG
-  Query query;
+  Log::write("---> WaitData: server waiting for own bims");
 
   // ------------------------------------------------------------------------------------
   // --- Отправить образы "Свой"
   // ---
-  Log::write("<--- DATA: send own bims");
+  Log::write("<--- Data: send own bims");
   BimParametersQuery bimParamQuery;
-  bimParamQuery.create(ownParams, repeat);
+  bimParamQuery.create(ownParams);
   bimParamQuery.write(_socket);
 
   // ------------------------------------------------------------------------------------
@@ -157,16 +201,15 @@ nbResult Client::registerData(QList<Nb::Matrix*> &ownParams, QList<Nb::Matrix*> 
   return nbS_OK;
 }
 
-
-// Протестировать
-nbResult Client::testData(QList<Nb::Matrix*> &testParams)
+// Протестировать зарегистрированный контейнер
+nbResult Client::testContainer(QList<Nb::Matrix*> &testParams)
 {
   LOG
 
   // ------------------------------------------------------------------------------------
   // --- Отправить данные
   // ---
-  Log::write("<--- TEST: send bims");
+  Log::write("<--- Test: send bims");
   TestQuery testQuery;
   testQuery.create(testParams);
   testQuery.write(_socket);
@@ -182,16 +225,15 @@ nbResult Client::testData(QList<Nb::Matrix*> &testParams)
     return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
   }
   if (resultQuery.accessGranted())
-    Log::write("---> RESULT: access granted");
+    Log::write("---> Access granted");
   else
-    Log::write("---> RESULT: access denied");
+    Log::write("---> Access denied");
 
   return nbS_OK;
 }
 
-
-// Подтверить регистрацию
-nbResult Client::confirmRegistration()
+// Подтверить регистрацию контейнера
+nbResult Client::confirmContainer()
 {
   LOG
   Query query;
@@ -199,7 +241,7 @@ nbResult Client::confirmRegistration()
   // ------------------------------------------------------------------------------------
   // --- Отправить подтверждение
   // ---
-  Log::write("<--- OK: confirm data");
+  Log::write("<--- Ok: confirm data");
   query.create(Query::Ok);
   query.write(_socket);
 
@@ -214,100 +256,36 @@ nbResult Client::confirmRegistration()
     stop();
     return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
   }
+  Log::write("---> Ok: confirm data");
 
   return nbS_OK;
 }
 
-
-// Начать процедуру подписывания документа
-nbResult Client::startSign(QString userId, QString containerId, Nbc &container)
+// Подписать данные биометрической меткой
+nbResult Client::signData(QString userId, Nb::Data &data, Nb::Data &signature)
 {
   LOG
 
   // ------------------------------------------------------------------------------------
-  // --- Отправить идентификаторы
+  // --- Отправить данные
   // ---
-  Log::write("<--- WANT_SIGNATURE: start creating signature");
+  Log::write("<--- Data: document");
   StartSignatureQuery startSigQuery;
-  startSigQuery.create(userId, containerId);
+  startSigQuery.create(userId, data);
   startSigQuery.write(_socket);
-
-  // ---
-  // --- Получить динамически сформированный контейнер
-  // ---
-  ContainerQuery containerQuery;
-  containerQuery.read(_socket);
-  if (!containerQuery.isOk())
-  {
-    stop();
-    return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
-  }
-  containerQuery.container()->copy(container);
-  Log::write("---> ANS: container");
-
-  return nbS_OK;
-}
-
-
-// Использовать одноразовый пароль
-nbResult Client::usePassword(Nb::Matrix &password, bool &accessGranted)
-{
-  LOG
-
-  // ------------------------------------------------------------------------------------
-  // --- Отправить одноразовый пароль
-  // ---
-  Log::write("<--- PASSWORD: one-time password ");
-  PasswordQuery passwordQuery;
-  passwordQuery.create(password);
-  passwordQuery.write(_socket);
-
-  // ------------------------------------------------------------------------------------
-  // --- Получить результат аутентификации
-  // ---
-  ResultQuery resultQuery;
-  resultQuery.read(_socket);
-  if (!resultQuery.isOk())
-  {
-    stop();
-    return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
-  }
-  accessGranted = resultQuery.accessGranted();
-  if (accessGranted)
-    Log::write("---> RESULT: access granted");
-  else
-    Log::write("---> RESULT: access denied");
-
-  return nbS_OK;
-}
-
-
-// Подписать документ
-nbResult Client::signDocument(Nb::Data document, Nb::Data signature)
-{
-  LOG
-
-  // ------------------------------------------------------------------------------------
-  // --- Отправить документ
-  // ---
-  Log::write("<--- DATA: document");
-  DocumentQuery documentQuery;
-  documentQuery.create(document);
-  documentQuery.write(_socket);
 
   // ------------------------------------------------------------------------------------
   // --- Принять подпись
   // ---
-  Log::write("---> DATA: signature");
-  documentQuery.clear();
+  Log::write("---> Data: signature");
+  DocumentQuery documentQuery;
   documentQuery.read(_socket);
-  if (!documentQuery.typeIs(Query::Data))
+  if (!documentQuery.isOk())
   {
     stop();
     return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
   }
   documentQuery.get(signature);
-  Log::write("        : " + signature.toString() );
 
   return nbS_OK;
 }

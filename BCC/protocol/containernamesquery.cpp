@@ -8,7 +8,9 @@ ContainerNamesQuery::ContainerNamesQuery(): Query(Query::Ans)
 // Создать запрос с заданными данными блоков
 bool ContainerNamesQuery::create(QStringList &names)
 {
-  Log::Tab tab;
+  LOG
+
+  Query::create(Query::Ans);
   Log::write("_namesBlock");
   _namesBlock.push((int32_t)names.size());
   int size(0);

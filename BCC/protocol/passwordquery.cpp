@@ -8,7 +8,9 @@ PasswordQuery::PasswordQuery(): Query(Query::Password)
 // Создать запрос с заданными данными блоков
 bool PasswordQuery::create(Nb::Matrix &password)
 {
-  Log::Tab tab;
+  LOG
+
+  Query::create(Query::Password);
   Log::write("_passwordBlock");
   _passwordBlock.push(password);
 

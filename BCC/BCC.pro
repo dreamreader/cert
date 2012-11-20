@@ -46,23 +46,24 @@ SOURCES   += \
     nb/Data.cpp \
     nb/Container.cpp \
     nb/Bim.cpp \
-    protocol/testquery.cpp \
-    protocol/startsignaturequery.cpp \
-    protocol/startregisterquery.cpp \
-    protocol/query.cpp \
-    protocol/passwordquery.cpp \
-    protocol/log.cpp \
-    protocol/documentquery.cpp \
-    protocol/containerquery.cpp \
-    protocol/bimparametersquery.cpp \
     nb/Statistics.cpp \
     nb/Processor.cpp \
     nb/BimBase.cpp \
-    protocol/resultquery.cpp \
-    protocol/statsquery.cpp \
     nb/Provider.cpp \
-    protocol/enumeratecontainersquery.cpp \
-    protocol/containernamesquery.cpp
+    protocol/testquery.cpp \
+    protocol/statsquery.cpp \
+    protocol/startsignaturequery.cpp \
+    protocol/startregisterquery.cpp \
+    protocol/signaturequery.cpp \
+    protocol/resultquery.cpp \
+    protocol/query.cpp \
+    protocol/log.cpp \
+    protocol/getcontainerquery.cpp \
+    protocol/documentquery.cpp \
+    protocol/containerquery.cpp \
+    protocol/containernamesquery.cpp \
+    protocol/bimparametersquery.cpp \
+    protocol/authquery.cpp
 
 
 HEADERS   += \
@@ -102,23 +103,25 @@ HEADERS   += \
     nb/Container.h \
     nb/common.h \
     nb/Bim.h \
-    protocol/testquery.h \
-    protocol/startsignaturequery.h \
-    protocol/startregisterquery.h \
-    protocol/passwordquery.h \
-    protocol/nbqueryheader.h \
-    protocol/log.h \
-    protocol/documentquery.h \
-    protocol/containerquery.h \
-    protocol/bimparametersquery.h \
     nb/Statistics.h \
     nb/Processor.h \
     nb/ComponentInfos.h \
     nb/BimBase.h \
-    protocol/resultquery.h \
-    protocol/statsquery.h \
-    protocol/query.h \
-    protocol/queries.h \
     nb/Provider.h \
+    protocol/testquery.h \
+    protocol/statsquery.h \
+    protocol/startsignaturequery.h \
+    protocol/startregisterquery.h \
+    protocol/signaturequery.h \
+    protocol/resultquery.h \
+    protocol/Query.h \
+    protocol/queries.h \
+    protocol/nbqueryheader.h \
+    protocol/log.h \
+    protocol/getcontainerquery.h \
     protocol/enumeratecontainersquery.h \
-    protocol/containernamesquery.h
+    protocol/documentquery.h \
+    protocol/containerquery.h \
+    protocol/containernamesquery.h \
+    protocol/bimparametersquery.h \
+    protocol/authquery.h

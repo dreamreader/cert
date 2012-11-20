@@ -1,6 +1,6 @@
 #include "server.h"
 
-// Конструктор
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 Server::Server()
 {
   _serverSocket = new QTcpServer(this);
@@ -14,7 +14,7 @@ Server::~Server()
   delete _serverSocket;
 }
 
-// Перегруженный слот - новое соединение
+// РџРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Р№ СЃР»РѕС‚ - РЅРѕРІРѕРµ СЃРѕРµРґРёРЅРµРЅРёРµ
 void Server::openSession()
 {
   LOG
@@ -58,7 +58,7 @@ bool Server::event(QEvent* e)
   return true;
 }
 
-// Запустить сервер
+// Р—Р°РїСѓСЃС‚РёС‚СЊ СЃРµСЂРІРµСЂ
 bool Server::start()
 {
   LOG
@@ -69,7 +69,7 @@ bool Server::start()
   return true;
 }
 
-// Остановить сервер
+// РћСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРµСЂРІРµСЂ
 bool Server::stop()
 {
   LOG

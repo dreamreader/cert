@@ -6,14 +6,14 @@
 typedef uint8_t nbQueryFlags;
 typedef uint8_t nbQueryType;
 
-#define nbBT_PROTOCOL       (129)       // Блок протокола
+#define nbBT_PROTOCOL       (129)       // Р‘Р»РѕРє РїСЂРѕС‚РѕРєРѕР»Р°
 
-/// Заголовок запроса
+/// Р—Р°РіРѕР»РѕРІРѕРє Р·Р°РїСЂРѕСЃР°
 struct nbQueryHeader
 {
-  uint16_t              qcount;         // 2 байта. Число следующих за заголовком запроса блоков
-  nbQueryFlags          qflags;         // 1 байт. Флаги запроса (не определены)
-  nbQueryType           qtype;          // 1 байт. Тип запроса
+  uint16_t              qcount;         // 2 Р±Р°Р№С‚Р°. Р§РёСЃР»Рѕ СЃР»РµРґСѓСЋС‰РёС… Р·Р° Р·Р°РіРѕР»РѕРІРєРѕРј Р·Р°РїСЂРѕСЃР° Р±Р»РѕРєРѕРІ
+  nbQueryFlags          qflags;         // 1 Р±Р°Р№С‚. Р¤Р»Р°РіРё Р·Р°РїСЂРѕСЃР° (РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹)
+  nbQueryType           qtype;          // 1 Р±Р°Р№С‚. РўРёРї Р·Р°РїСЂРѕСЃР°
 };
 
 #endif // NBQUERYHEADER_H

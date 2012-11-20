@@ -16,18 +16,29 @@ bool SessionTask::start()
   Log::write("query type", header.getType());
   switch (header.getType())
   {
-    case Query::WantRegister:
-      Log::write("WantRegister");
-      return startRegister(header);
+    case Query::WantAuth:
+      Log::write("WantAuth");
+      return authenticate(header);
+      break;
+
+    case Query::WantAuthBio:
+      Log::write("WantAuthBio");
+      return authenticateBio(header);
+      break;
+
+    case Query::WantContainer:
+      Log::write("WantContainer");
+      return createContainer(header);
       break;
 
     case Query::WantSignature:
       Log::write("WantSignature");
-      return startSignature(header);
+      return signData(header);
       break;
 
-    case Query::WantContainers:
-      return enumerateContainers(header);
+    case Query::WantRegister:
+      Log::write("WantRegister");
+      return registerContainer(header);
       break;
 
     default:
@@ -45,8 +56,8 @@ bool SessionTask::checkServer()
   return (_server.getState() != ServerContext::Stopped);
 }
 
-// Перечислить имена контейнеров для пользователя
-bool SessionTask::enumerateContainers(Query::QueryHeaderBlock &header)
+// Выполнить аутентификацию
+bool SessionTask::authenticate(Query::QueryHeaderBlock &header)
 {
   LOG
 
@@ -56,44 +67,219 @@ bool SessionTask::enumerateContainers(Query::QueryHeaderBlock &header)
     stop(/*nbE_INTERNAL_ERROR*/);
     return false;
   }
-
   // Начать транзакцию
   _session.beginTransaction();
 
   // ------------------------------------------------------------------------------------
-  // --- Получить имя пользователя
+  // --- Получить код аутентификации
   // ---
-  EnumerateContainersQuery enumQuery;
-  enumQuery.create(header);
-  enumQuery.read(_session.socket);
-  if (!enumQuery.isOk())
+  AuthQuery authQuery;
+  authQuery.create(header);
+  authQuery.read(_session.socket);
+  if (!authQuery.isOk())
   {
     stop(/*nbE_UNEXPECTED_QUERY*/);
     return false;
   }
-  Log::write("---> WANT_CONTAINERS: enumerate containers");
-  enumQuery.get(_session.userId);
+  Log::write("---> WantAuth: start authentication, check authentication key");
+  authQuery.get(_session.userId, _session.authKey);
 
-  // Получить список имён контейнеров
-  _session.database->getContainers(_session.userId, _session.containers);
+  // Проверить наличие кода аутентификации
+  _session.authenticated = false;
+  _session.database->addAuthenticationKey(_session.userId, _session.authKey.toString());   //TMP: ЧИСТО ДЛЯ ТЕСТА
+  _session.database->useAuthenticationKey(_session.userId, _session.authKey.toString(), _session.authenticated);
+  Log::write("regkey confirmed ", _session.authenticated);
 
   // ------------------------------------------------------------------------------------
-  // --- Отправить список имён контейнеров
+  // --- Отправить результат
   // ---
-  Log::write("<--- ANS: send container names");
-  if (!checkServer())
-  {
-    stop(/*nbE_SERVER_STOPPED*/);
-    return false;
-  }
-  ContainerNamesQuery contQuery;
-  contQuery.create(_session.containers);
-  contQuery.write(_session.socket);
+  if (_session.authenticated)
+    Log::write("<--- Result: access granted");
+  else
+    Log::write("<--- Result: access denied");
+  ResultQuery resultQuery;
+  resultQuery.create(_session.authenticated, nbNULL);
+  resultQuery.write(_session.socket);
+
+  //Завершить транзакцию
+  _session.commitTransaction();
+  return true;
 }
 
+// Выполнить биометрическую аутентификацию
+bool SessionTask::authenticateBio(Query::QueryHeaderBlock &header)
+{
+  LOG
 
-// Запустить обработку задачи: регистрация
-bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
+  // Проверить НПБК и базу данных
+  if(!_session.nbcc.isCreated() || !_session.database)
+  {
+    stop(/*nbE_INTERNAL_ERROR*/);
+    return false;
+  }
+  // Начать транзакцию
+  _session.beginTransaction();
+
+  // ------------------------------------------------------------------------------------
+  // --- Получить код аутентификации
+  // ---
+  AuthQuery authQuery;
+  authQuery.create(header);
+  authQuery.read(_session.socket);
+  if (!authQuery.isOk())
+  {
+    stop(/*nbE_UNEXPECTED_QUERY*/);
+    return false;
+  }
+  Log::write("---> WantAuth: start biometric authentication, check one-time key");
+  authQuery.get(_session.userId, _session.authBioKey);
+
+  // Проверить наличие одноразового контейнера
+  if (!_session.containerCreated)
+  {
+    Log::write("no one-time container");
+    _session.authenticatedBio = false;
+    return false;
+  }
+  else
+  {
+    _session.authenticatedBio = (_session.containerKey.isEqual(_session.authBioKey));
+  }
+
+  // ------------------------------------------------------------------------------------
+  // --- Отправить результат
+  // ---
+  if (_session.authenticatedBio)
+  {
+    //Сбросить контейнер
+    _session.containerCreated = false;
+    Log::write("<--- Result: access granted");
+  }
+  else
+    Log::write("<--- Result: access denied");
+  ResultQuery resultQuery;
+  resultQuery.create(_session.authenticatedBio, nbNULL);
+  resultQuery.write(_session.socket);
+
+  //Завершить транзакцию
+  _session.commitTransaction();
+  return true;
+}
+
+// Создать одноразовый контейнер для биометрической аутентификации
+bool SessionTask::createContainer(Query::QueryHeaderBlock &header)
+{
+  LOG
+
+  // Проверить НПБК и базу данных
+  if(!_session.nbcc.isCreated() || !_session.database)
+  {
+    stop(/*nbE_INTERNAL_ERROR*/);
+    return false;
+  }
+  // Начать транзакцию
+  _session.beginTransaction();
+
+  // ------------------------------------------------------------------------------------
+  // --- Получить идентификатор пользователя
+  // ---
+  GetContainerQuery getQuery;
+  getQuery.create(header);
+  getQuery.read(_session.socket);
+  if (!getQuery.isOk())
+  {
+    Log::write("err GetContainerQuery");
+    stop(/*nbE_UNEXPECTED_QUERY*/);
+    return false;
+  }
+  Log::write("---> WantContainer: start creating one-time container");
+  getQuery.get(_session.userId);
+
+  // Загрузить схему и образы из базы данных
+  _session.container = new Nbc;
+  if (!_session.database->getContainer(_session.userId, "theone", *_session.container))
+  {
+    Log::write("get container failed");
+    stop(/*nbE_INTERNAL_ERROR*/);
+    return false;
+  }
+  SlotIds inSlots = _session.container->getScheme().ids(Nb::StIn);
+  for (int i=0; i < inSlots.size(); i++)
+  {
+    _session.ownBimParams.push_back(new Nb::Matrix);
+  }
+
+  if (!_session.database->getBims(_session.userId, "theone", _session.ownBimParams))
+  {
+    Log::write("get bims failed");
+    stop(/*nbE_INTERNAL_ERROR*/);
+    return false;
+  }
+
+  // Загрузить и сформировать базу "Чужие"
+  for (unsigned i = 0; i != inSlots.size(); i++)
+  {
+    Processor processor;
+    Matrix *foreign = new Matrix;
+    Nb::Uuids uuids = _session.container->getSlotInfo(inSlots[i]);
+    if (uuids.size() < 2)
+    {
+      Log::write("error get slot info; uuids size", uuids.size());
+      stop(/*nbE_INTERNAL_ERROR*/);
+      return false;
+    }
+    if (!_session.dispatcher.getProcessor(uuids[1], processor, nbNULL))
+    {
+      Log::write("error get processor");
+      stop(/*nbE_INTERNAL_ERROR*/);
+      return false;
+    }
+    if (!processor.getForeignBase(*foreign))
+    {
+      Log::write("error get foreignBase ");
+      stop(/*nbE_INTERNAL_ERROR*/);
+      return false;
+    }
+    _session.allBimParams.push_back(foreign);
+  }
+
+  // Сформировать контейнер одноразового пароля
+  _session.containerKey.create(_session.authMeta.count(), false, 0x55); //TMP: тест
+  if (!_session.nbcc.learn(*_session.container, _session.ownBimParams, _session.allBimParams, _session.containerKey, _session.stats))
+  {
+    stop(/*nbE_INTERNAL_ERROR*/);
+    return false;
+  }
+  _session.containerCreated = true;
+
+  // ------------------------------------------------------------------------------------
+  // --- Отправить сформированный контейнер
+  // ---
+  Log::write("<--- ANS: one-time container");
+  if (!checkServer())
+  {
+    stop(/**/);
+    return false;
+  }
+  ContainerQuery containerQuery;
+  containerQuery.create(*_session.container);
+  containerQuery.write(_session.socket);
+
+  for (int i=0; i<_session.ownBimParams.size(); i++)
+    delete _session.ownBimParams[i];
+  for (int i=0; i<_session.allBimParams.size(); i++)
+    delete _session.allBimParams[i];
+
+  _session.ownBimParams.clear();
+  _session.allBimParams.clear();
+
+  //Завершить транзакцию
+  _session.commitTransaction();
+  return true;
+}
+
+// Запустить задачу регистрации
+bool SessionTask::registerContainer(Query::QueryHeaderBlock &header)
 {
   LOG
   Query query;
@@ -111,41 +297,28 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
   // ------------------------------------------------------------------------------------
   // --- Получить желаемые параметры регистрации (в т.ч. схему преобразования)
   // ---
-  StartRegisterQuery startRegQuery;
-  startRegQuery.create(header);
-  startRegQuery.read(_session.socket);
-  if (!startRegQuery.isOk())
+  StartRegisterQuery regQuery;
+  regQuery.create(header);
+  regQuery.read(_session.socket);
+  if (!regQuery.isOk())
   {
     stop(/*nbE_UNEXPECTED_QUERY*/);
     return false;
   }
-  Log::write("---> WANT_REGISTER: start registration, check ids and regkey");
-  startRegQuery.get(_session.userId, _session.containerId, _session.regkey);
+  Log::write("---> WantRegister: start registration, check ids and regkey");
+  regQuery.get(_session.userId);
 
-  // Проверить наличие ключа регистрации
-  bool exist(false);
-  _session.database->addRegisterKey(_session.userId, _session.regkey);   //TMP: ЧИСТО ДЛЯ ТЕСТА
-  _session.database->checkRegisterKey(_session.userId, _session.regkey, exist);
-  Log::write("regkey confirmed ", exist);
-  if (!exist)
+  // Проверить аутентифицированность
+  if (!_session.authenticated && !_session.authenticatedBio)
   {
-    stop(/*nbE_INVALID_REGISTRATION_KEY*/);
-    return false;
-  }
-
-  // Проверить уникальность имени контейнера
-  _session.database->containerExists(_session.userId, _session.containerId, exist);
-  Log::write("container not exists ", !exist);
-  if (exist)
-  {
-    stop(/*nbE_CONTAINER_ALREADY_EXISTS*/);
+    stop(/*nbE_ACCESS_DENIED*/);
     return false;
   }
 
   // ------------------------------------------------------------------------------------
-  // --- Отправить подтверждение
+  // --- Отправить запрос на ввод контейнера
   // ---
-  Log::write("<--- WAIT_DATA: confirm ids and regkey");
+  Log::write("<--- WaitData: wait for container");
   query.create(Query::WaitData);
   query.write(_session.socket);
 
@@ -159,7 +332,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
     stop(/*nbE_UNEXPECTED_QUERY*/);
     return false;
   }
-  Log::write("---> DATA: container");
+  Log::write("---> Data: container");
 
   _session.container = containerQuery.container();
   SlotIds inSlots = _session.container->getScheme().ids(Nb::StIn);
@@ -173,7 +346,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
   // ------------------------------------------------------------------------------------
   // --- Отправить запрос на ввод образов "Свой"
   // ---
-  Log::write("<--- WAIT_DATA: waiting for own bims");
+  Log::write("<--- WaitData: waiting for own bims");
   if (!checkServer())
   {
     stop(/*nbE_SERVER_STOPPED*/);
@@ -193,7 +366,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
     stop(/*nbE_UNEXPECTED_QUERY*/);
     return false;
   }
-  Log::write("---> DATA: own bims");
+  Log::write("---> Data: own bims");
 
   // Загрузить и сформировать базу "Чужие"
   for (unsigned i = 0; i != inSlots.size(); i++)
@@ -223,7 +396,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
   }
 
   // Обучить НПБК
-  OneTimePassword password(_session.outMeta.count());
+  OneTimePassword password(_session.authMeta.count());
 
   Log::write("start learning...");
   if (!_session.nbcc.learn(*_session.container, _session.ownBimParams, _session.allBimParams, password, _session.stats))
@@ -238,7 +411,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
   // ------------------------------------------------------------------------------------
   // --- Отправить статистику
   // ---
-  Log::write("<--- STATS: send learn statistics");
+  Log::write("<--- Stats: send learn statistics");
   if (!checkServer())
   {
     stop(/*nbE_SERVER_STOPPED*/);
@@ -275,7 +448,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
         stop(/*nbE_UNEXPECTED_QUERY*/);
         return false;
       }
-      Log::write("---> DATA: own bims");
+      Log::write("---> RepeatData: own bims");
 
       // Переобучить НПБК (база чужой сформирована)
       if (!_session.nbcc.learn(*_session.container, _session.ownBimParams, _session.allBimParams, password, _session.stats))
@@ -287,7 +460,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
       // ------------------------------------------------------------------------------------
       // --- Отправить статистику
       // ---
-      Log::write("<--- STATS: send learn statistics");
+      Log::write("<--- Stats: send learn statistics");
       if (!checkServer())
       {
         stop(/*nbE_SERVER_STOPPED*/);
@@ -302,9 +475,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
     // --- Получить запрос на тестирование
     // ---
     case Query::Test:
-      Log::write("               header count:", header.getCount());
       testQuery.clear();
-      Log::write("   after clear header count:", header.getCount());
       testQuery.create(header);
       testQuery.read(_session.socket);
       if (!testQuery.isOk())
@@ -312,9 +483,9 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
         stop(/*nbE_UNEXPECTED_QUERY*/);
         return false;
       }
-      Log::write("---> TEST: test bim");
+      Log::write("---> Test: test bim");
 
-      // Получить отклик    
+      // Получить отклик
       testQuery.get(_session.testBimParams);
       Log::write("testBimParams size", _session.testBimParams.size());
 
@@ -344,7 +515,7 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
         Log::write("<--- RESULT: access granted");
       else
         Log::write("<--- RESULT: access denied");
-      resultQuery.create(accessGranted, _session.outCode);
+      resultQuery.create(accessGranted, &_session.outCode);
       resultQuery.write(_session.socket);
       break;
 
@@ -362,20 +533,23 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
   // ------------------------------------------------------------------------------------
   // --- Получить подтверждение данных
   // ---
-  Log::write("---> OK: data confirmed");
+  Log::write("---> Ok: data confirmed");
 
   // Внести изменения в базу данных
-  if (!_session.database->addContainer(_session.userId, _session.containerId, *_session.container, _session.ownBimParams, _session.regkey))
+  if (!_session.database->addContainer(_session.userId, "theone", *_session.container, _session.ownBimParams))
   {
     stop(/*nbE_INTERNAL_ERROR*/);
     return false;
   }
+
+  _session.authenticated = false;
+  _session.authenticatedBio = false;
   _session.commitTransaction();
 
   // ------------------------------------------------------------------------------------
   // --- Отправить подтверждение
   // ---
-  Log::write("<--- OK: confirm register");
+  Log::write("<--- Ok: confirm register");
   query.create(Query::Ok);
   query.write(_session.socket);
 
@@ -392,179 +566,36 @@ bool SessionTask::startRegister(Query::QueryHeaderBlock &header)
   return true;
 }
 
-
-
-// Запустить обработку задачи: подписывание документа
-bool SessionTask::startSignature(Query::QueryHeaderBlock &header)
+// Запустить задачу подписывания документа
+bool SessionTask::signData(Query::QueryHeaderBlock &header)
 {
-  LOG
-  Query query;
-  Log::write("startSignature");
-
-  // Проверить НПБК и базу данных
-  if(!_session.nbcc.isCreated() || !_session.database)
-  {
-    Log::write("nccc || database error");
-    stop(/*nbE_INTERNAL_ERROR*/);
-    return false;
-  }
-
-  // Начать транзакцию
-  _session.beginTransaction();
-
-  // ------------------------------------------------------------------------------------
-  // --- Получить идентификаторы пользователя и схемы
-  // ---
-  StartSignatureQuery startSigQuery;
-  startSigQuery.create(header);
-  Log::write("start read startSigQuery");
-  startSigQuery.read(_session.socket);
-  if (!startSigQuery.isOk())
-  {
-    stop(/*nbE_UNEXPECTED_QUERY*/);
-    return false;
-  }
-  Log::write("---> WANT_SIGNATURE: start creating signature");
-  startSigQuery.get(_session.userId, _session.containerId);
-
-  // Загрузить схему и образы из базы данных
-  _session.container = new Nbc;
-  if (!_session.database->getContainer(_session.userId, _session.containerId, *_session.container))
-  {
-    Log::write("get container failed");
-    stop(/*nbE_INTERNAL_ERROR*/);
-    return false;
-  }
-  SlotIds inSlots = _session.container->getScheme().ids(Nb::StIn);
-  for (int i=0; i < inSlots.size(); i++)
-  {
-    _session.ownBimParams.push_back(new Nb::Matrix);
-  }
-
-  if (!_session.database->getBims(_session.userId, _session.containerId, _session.ownBimParams))
-  {
-    Log::write("get bims failed");
-    stop(/*nbE_INTERNAL_ERROR*/);
-    return false;
-  }
-
-  // Загрузить и сформировать базу "Чужие"
-  for (unsigned i = 0; i != inSlots.size(); i++)
-  {
-    Processor processor;
-    Matrix *foreign = new Matrix;
-    Nb::Uuids uuids = _session.container->getSlotInfo(inSlots[i]);
-    Log::write("uuids size", uuids.size());
-    if (uuids.size() < 2)
-    {
-      stop(/*nbE_INTERNAL_ERROR*/);
-      return false;
-    }
-    if (!_session.dispatcher.getProcessor(uuids[1], processor, nbNULL))
-    {
-      Log::write("error get processor");
-      stop(/*nbE_INTERNAL_ERROR*/);
-      return false;
-    }
-    if (!processor.getForeignBase(*foreign))
-    {
-      Log::write("error get foreignBase ");
-      stop(/*nbE_INTERNAL_ERROR*/);
-      return false;
-    }
-    _session.allBimParams.push_back(foreign);
-  }
-
-  // Сформировать контейнер одноразового пароля
-  OneTimePassword password(_session.outMeta.count(), false, 0x55);
-  if (!_session.nbcc.learn(*_session.container, _session.ownBimParams, _session.allBimParams, password, _session.stats))
-  {
-    stop(/*nbE_INTERNAL_ERROR*/);
-    return false;
-  }
-
-  // ------------------------------------------------------------------------------------
-  // --- Отправить сформированный контейнер
-  // ---
-  Log::write("<--- ANS: one-time container");
-  if (!checkServer())
-  {
-    stop(/**/);
-    return false;
-  }
-  ContainerQuery containerQuery;
-  containerQuery.create(*_session.container);
-  containerQuery.write(_session.socket);
-
-  bool accessGranted = false;
-  header.free();
-  header.read(_session.socket);
-  while (header.typeIs(Query::Password) && !accessGranted)    //TODO: количество попыток добавить
-  {
-    // ------------------------------------------------------------------------------------
-    // --- Получить пароль
-    // ---
-    PasswordQuery passwordQuery;
-    passwordQuery.create(header);
-    passwordQuery.read(_session.socket);
-    if (!passwordQuery.isOk())
-    {
-      stop(/*nbE_UNEXPECTED_QUERY*/);
-      return false;
-    }
-    Log::write("---> PASSWORD: one-time password");
-    passwordQuery.get(_session.outCode);
-
-    // ------------------------------------------------------------------------------------
-    // --- Отправить результат и значения индикаторов
-    // ---
-    if (!checkServer())
-    {
-      stop(/*nbE_SERVER_STOPPED*/);
-      return false;
-    }
-    accessGranted = (password == _session.outCode);
-    if (accessGranted)
-      Log::write("<--- RESULT: access granted");
-    else
-      Log::write("<--- RESULT: access denied");
-    ResultQuery resultQuery;
-    resultQuery.create(accessGranted, _session.outCode);
-    resultQuery.write(_session.socket);
-
-    header.free();
-    header.read(_session.socket);
-  }
-
   // ------------------------------------------------------------------------------------
   // --- Принять документ
   // ---
-  Log::write("---> DATA: document");
-  DocumentQuery documentQuery;
-  documentQuery.create(header);
-  documentQuery.read(_session.socket);
-  if (!documentQuery.isOk())
+  Log::write("---> WantSignature: start sign document");
+  StartSignatureQuery sigQuery;
+  sigQuery.create(header);
+  sigQuery.read(_session.socket);
+  if (!sigQuery.isOk())
   {
     stop(/*nbE_UNEXPECTED_QUERY*/);
     return false;
   }
-  if (!accessGranted)
+  if (!_session.authenticatedBio)
   {
     stop(/*nbE_ACCESS_DENIED*/);
     return false;
   }
-  documentQuery.get(_session.data);
+  sigQuery.get(_session.userId, _session.data);
 
   // Подписать документ
   QString sigStr;
   sigStr  = QString::fromUtf8("Пользователь ")
           + _session.userId
-          + QString::fromUtf8("аутентифицировался с помощью схемы \"")
-          + _session.containerId
-          + QString::fromUtf8("\" ");
-          //+ QDateTime::currentDateTime.toString();
+          + QString::fromUtf8(" или какой-то злоумышленник, кто иж разберёт то, сформировал биометрическую метку ")
+          + QDateTime::currentDateTime().toString();
   int size(0);
-  _session.signature.fromString(sigStr, size, false);
+  _session.signature.fromString(sigStr, size, true);
 
   // ------------------------------------------------------------------------------------
   // --- Отправить документ
@@ -574,21 +605,14 @@ bool SessionTask::startSignature(Query::QueryHeaderBlock &header)
     stop(/**/);
     return false;
   }
-  Log::write("<--- DATA: signed document");
+  DocumentQuery documentQuery;
+  Log::write("<--- Data: signature");
   documentQuery.clear();
   documentQuery.create(_session.signature);
-  query.write(_session.socket);
+  Log::write("data query type: ", documentQuery.type());
+  documentQuery.write(_session.socket);
 
   _session.commitTransaction();
-
-  for (int i=0; i<_session.ownBimParams.size(); i++)
-    delete _session.ownBimParams[i];
-  for (int i=0; i<_session.allBimParams.size(); i++)
-    delete _session.allBimParams[i];
-
-  _session.ownBimParams.clear();
-  _session.allBimParams.clear();
-
   return true;
 }
 

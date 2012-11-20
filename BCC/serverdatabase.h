@@ -51,12 +51,12 @@ public:
   /* Добавить ключ регистрации пользователю
    *
    */
-  bool addRegisterKey(QString userId, QString regkey);
+  bool addAuthenticationKey(QString userId, QString regkey);
 
   /* Проверить наличие ключа регистрации у пользователя
    *
    */
-  bool checkRegisterKey(QString userId, QString regkey, bool &exist);
+  bool useAuthenticationKey(QString userId, QString regkey, bool &ok);
 
   /* Проверить существование у пользователя заданного контейнера
    *
@@ -66,7 +66,7 @@ public:
   /* Добавить схему аутентификации пользователю
    *
    */
-  bool addContainer(QString userId, QString schemeId, Nb::Container &container, QList<Nb::Matrix*> &bimParams, QString &regkey);
+  bool addContainer(QString userId, QString schemeId, Nb::Container &container, QList<Nb::Matrix*> &bimParams);
 
   /* Удалить указанную схему аутентификации
    *

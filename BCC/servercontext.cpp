@@ -60,7 +60,8 @@ bool ServerContext::noticeIncomingConnection()
  */
 bool ServerContext::noticeClosedConnection()
 {
-  Log::Tab tab();
+  LOG
+
   Log::write("notice closed connection");
   _mutex->lock();
   _sessionCount--;

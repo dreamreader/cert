@@ -3,8 +3,8 @@
 // Конструктор
 SessionContext::SessionContext(QTcpSocket &clientSocket):
   socket(clientSocket),
-  outMeta(passwordSize, Nb::MfI1, Nb::MtDiscreteOwn),
-  outCode(1, outMeta)
+  authMeta(passwordSize, Nb::MfI1, Nb::MtDiscreteOwn),
+  outCode(1, authMeta)
 {
   LOG
 

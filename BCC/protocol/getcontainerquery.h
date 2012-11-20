@@ -1,13 +1,9 @@
-#ifndef STARTREGISTERQUERY_H
-#define STARTREGISTERQUERY_H
+#ifndef GETCONTAINERQUERY_H
+#define GETCONTAINERQUERY_H
 
 #include "query.h"
-#include "../nb/Container.h"
-#include "../nb/Matrix.h"
-#include "../nb/Data.h"
-#include "../nb/Scheme.h"
 
-class StartRegisterQuery : public Query
+class GetContainerQuery : public Query
 {
 public:
   //Включить все сигнатуры перегруженного метода
@@ -16,18 +12,18 @@ public:
 public:
   static const unsigned blockCount = 1;
 
-  Query::DataBlock   _userIdBlock;
+  Query::DataBlock   _userIdBlock;           ///< блок идентификатора пользователя
 
 public:
-  /* Конструктор по умолчанию
+  /* Конструктор
    *
    */
-  StartRegisterQuery();
+  GetContainerQuery();
 
   /* Создать запрос с заданными данными блоков
    *
    */
-  bool create(QString &userId);
+  bool create(QString userId);
 
   /* Получить данные блоков запроса
    *
@@ -40,4 +36,4 @@ public:
   bool isOk();
 };
 
-#endif // STARTREGISTERQUERY_H
+#endif // GETCONTAINERQUERY_H

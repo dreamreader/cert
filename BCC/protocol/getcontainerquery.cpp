@@ -1,48 +1,41 @@
-#include "startsignaturequery.h"
+#include "getcontainerquery.h"
 
 // Конструктор по умолчанию
-StartSignatureQuery::StartSignatureQuery(): Query(Query::WantSignature)
+GetContainerQuery::GetContainerQuery(): Query(Query::WantContainer)
 {
 }
 
 // Создать запрос с заданными данными блоков
-bool StartSignatureQuery::create(QString &userId, Nb::Data &data)
+bool GetContainerQuery::create(QString userId)
 {
   LOG
 
-  Query::create(Query::WantSignature);
+  Query::create(Query::WantContainer);
   Log::write("_userIdBlock");
   _userIdBlock.Block::push(Nb::Data(userId), true);
-  Log::write("_dataBlock");
-  _dataBlock.Block::push(data);
 
   this->push(&_userIdBlock);
-  this->push(&_dataBlock);
   return true;
 }
 
 // Получить данные блоков запроса
-bool StartSignatureQuery::get(QString &userId, Nb::Data &data)
+bool GetContainerQuery::get(QString &userId)
 {
   if (!isOk()) return false;
 
-  DataBlock *userIdBlock, *dataBlock;
+  Query::DataBlock *userIdBlock;
   userIdBlock = this->at(0);
-  dataBlock = this->at(1);
 
   int pos;
   pos = 0;
   Nb::Data userData;
   userIdBlock->Block::pop(pos, userData, true);
   userId = userData.toString();
-
-  pos = 0;
-  dataBlock->Block::pop(pos,data, true);
   return true;
 }
 
 // Проверить заполнение запроса (тип и число блоков)
-bool StartSignatureQuery::isOk()
+bool GetContainerQuery::isOk()
 {
-  return ((type() == Query::WantSignature) && (count() == blockCount));
+  return ((type() == Query::WantContainer) && (count() == blockCount));
 }

@@ -1,13 +1,9 @@
-#ifndef STARTREGISTERQUERY_H
-#define STARTREGISTERQUERY_H
+#ifndef SIGNATUREQUERY_H
+#define SIGNATUREQUERY_H
 
 #include "query.h"
-#include "../nb/Container.h"
-#include "../nb/Matrix.h"
-#include "../nb/Data.h"
-#include "../nb/Scheme.h"
 
-class StartRegisterQuery : public Query
+class SignatureQuery : public Query
 {
 public:
   //Включить все сигнатуры перегруженного метода
@@ -16,23 +12,23 @@ public:
 public:
   static const unsigned blockCount = 1;
 
-  Query::DataBlock   _userIdBlock;
+  Query::DataBlock   _sigBlock;           ///< блок биометрической метки
 
 public:
-  /* Конструктор по умолчанию
+  /* Конструктор
    *
    */
-  StartRegisterQuery();
+  SignatureQuery();
 
   /* Создать запрос с заданными данными блоков
    *
    */
-  bool create(QString &userId);
+  bool create(Nb::Data &scheme);
 
   /* Получить данные блоков запроса
    *
    */
-  bool get(QString &userId);
+  bool get(Nb::Data &scheme);
 
   /* Проверить заполнение запроса (тип и число блоков)
    *
@@ -40,4 +36,4 @@ public:
   bool isOk();
 };
 
-#endif // STARTREGISTERQUERY_H
+#endif // SIGNATUREQUERY_H

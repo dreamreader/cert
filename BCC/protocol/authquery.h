@@ -1,37 +1,36 @@
-#ifndef STARTSIGNATUREQUERY_H
-#define STARTSIGNATUREQUERY_H
+#ifndef AUTHQUERY_H
+#define AUTHQUERY_H
 
 #include "query.h"
-#include "../nb/Container.h"
-#include "../nb/Matrix.h"
 
-class StartSignatureQuery : public Query
+class AuthQuery : public Query
 {
 public:
   //Включить все сигнатуры перегруженного метода
   using Query::create;
 
-public:
+private:
   static const unsigned blockCount = 2;
 
-  Query::DataBlock   _userIdBlock;
-  Query::DataBlock   _dataBlock;
+  bool               _bio;
+  Query::DataBlock   _userIdBlock;           ///< блок идентификатора пользователя
+  Query::DataBlock   _keyBlock;         ///< блок пароля
 
 public:
-  /* Конструктор по умолчанию
+  /* Конструктор
    *
    */
-  StartSignatureQuery();
+  AuthQuery(bool bio = true);
 
   /* Создать запрос с заданными данными блоков
    *
    */
-  bool create(QString &userId, Nb::Data &data);
+  bool create(QString userId, Nb::Data &key);
 
   /* Получить данные блоков запроса
    *
    */
-  bool get(QString &userId, Nb::Data &data);
+  bool get(QString userId, Nb::Data &key);
 
   /* Проверить заполнение запроса (тип и число блоков)
    *
@@ -39,4 +38,4 @@ public:
   bool isOk();
 };
 
-#endif // STARTSIGNATUREQUERY_H
+#endif // AUTHQUERY_H

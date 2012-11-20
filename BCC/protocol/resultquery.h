@@ -10,8 +10,6 @@ public:
   using Query::create;
 
 public:
-  static const unsigned blockCount = 1;
-
   Query::DataBlock   _indicatorBlock;           ///< блок индикатора
 
 public:
@@ -23,7 +21,7 @@ public:
   /* Создать запрос с заданными данными блоков
    *
    */
-  bool create(bool accessGranted, Nb::Matrix &indicator);
+  bool create(bool accessGranted, Nb::Matrix* indicator = nbNULL);
 
   /* Проверить заполнение запроса (тип и число блоков)
    *

@@ -8,7 +8,9 @@ StatsQuery::StatsQuery(): Query(Query::Stats)
 // Создать запрос с заданными данными блоков
 bool StatsQuery::create(nbTestResult &stats)
 {
-  Log::Tab tab;
+  LOG
+
+  Query::create(Query::Stats);
   Log::write("_statsBlock");
   _statsBlock.push((uint8_t*)&stats, sizeof(nbTestResult));
 

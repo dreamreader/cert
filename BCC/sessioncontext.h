@@ -10,6 +10,7 @@
 #include "nb/dispatcher.h"
 #include "nb/nbclasses.h"
 #include "nb/statistics.h"
+#include "onetimepassword.h"
 
 static const nbUuid nbUUID_NBCC =
 {0x9ac0fe89, 0x596e, 0x4414, { 0x94, 0x36, 0x5, 0x12, 0x2b, 0xd9, 0x4d, 0x34}};
@@ -31,18 +32,23 @@ class SessionContext
 public:
   QTcpSocket&             socket;           ///< сокет клиента
   ServerDatabase*         database;         ///< база данных сервера
-
   Dispatcher              dispatcher;       ///< диспетчер компонентов
   Nbcc                    nbcc;             ///< НПБК
-  Nb::Meta                outMeta;          ///< метаописание одноразового ключа
+  Nb::Meta                authMeta;         ///< метаописание кода биометрической аутентификации
 
+//Логика
+  bool                    authenticated;    ///< пользователь аутентифицирован
+  bool                    authenticatedBio; ///< пользователь биометрически аутентифицирован
+  bool                    containerCreated; ///< одноразовый контейнер создан
+  OneTimePassword         containerKey;     ///< выходной код одноразового контейнера
   QString                 userId;           ///< идентификатор пользователя
-  QStringList             containers;   ///< контейнеры пользователя
-  QString                 containerId;      ///< идентификатор текущего контейнера
-  Nbc*                    container;        ///< контейнер со схемой аутентификации
-  QString                 regkey;           ///< ключ регистрации
+  Nbc*                    container;        ///< биометрический контейнер
+
+//Буферы
+  Nb::Data                authKey;          ///< код аутентификации
+  Nb::Data                authBioKey;       ///< код биометрической аутентификации
   QList<Nb::Matrix*>      ownBimParams;     ///< биометрические параметры "Свой" для обучения
-  QList<Nb::Matrix*>      allBimParams;     ///< биометрические параметры "Свой" для обучения
+  QList<Nb::Matrix*>      allBimParams;     ///< биометрические параметры "Чужой" для обучения
   QList<Nb::Matrix*>      testBimParams;    ///< биометрические параметры для тестирования
   Nb::Matrix              outCode;          ///< выходной код
   Statistics              stats;            ///< статистика обучения

@@ -6,22 +6,25 @@ ResultQuery::ResultQuery(): Query(Query::Denied)
 }
 
 // Создать запрос с заданными данными блоков
-bool ResultQuery::create(bool accessGranted, Nb::Matrix &indicator)
+bool ResultQuery::create(bool accessGranted, Nb::Matrix *indicator)
 {
-  Log::Tab tab;
+  LOG
 
-  Log::write("_indicatorBlock");
   this->Query::create( accessGranted ? Query::Granted : Query::Denied );
-  _indicatorBlock.push(indicator);
 
-  this->push(&_indicatorBlock);
+  if (indicator)
+  {
+    Log::write("_indicatorBlock");
+    _indicatorBlock.push(*indicator);
+    this->push(&_indicatorBlock);
+  }
   return true;
 }
 
 // Проверить заполнение запроса (тип и число блоков)
 bool ResultQuery::isOk()
 {
-  return (((type() == Query::Granted) || (type() == Query::Denied)) && (count() == blockCount));
+  return ((type() == Query::Granted) || (type() == Query::Denied));
 }
 
 // Проверить результат аутентификации

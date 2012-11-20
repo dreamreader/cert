@@ -4,6 +4,7 @@
 #include "rndmt.h"
 #include "time.h"
 #include "../BCC/nb/Matrix.h"
+#include "../BCC/nb/Data.h"
 
 class OneTimePassword
 {
@@ -14,7 +15,10 @@ public:
   /* Конструктор
    *
    */
+  OneTimePassword();
   OneTimePassword(unsigned size, bool random = true, uint8_t fillWith = 0x55);
+
+  void create(unsigned size, bool random = true, uint8_t fillWith = 0x55);
 
   /* Приведение к матрице
    *
@@ -23,6 +27,7 @@ public:
   operator Nb::Matrix&();
 
   bool operator == (Nb::Matrix &matrix);
+  bool isEqual(Nb::Data &data);
 
 };
 
