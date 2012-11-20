@@ -62,7 +62,10 @@ bool OneTimePassword::operator == (Nb::Matrix &matrix)
       (matrix.meta()->count() != _passwordMatrix.meta()->count()) ||
       (matrix.meta()->format() != _passwordMatrix.meta()->format()) ||
       (matrix.meta()->type() != _passwordMatrix.meta()->type()))
+  {
+    Log::write("bad format");
     return false;
+  }
 
   Log::write("format ok!");
   int ham(0);
@@ -81,11 +84,14 @@ bool OneTimePassword::operator == (Nb::Matrix &matrix)
 
 bool OneTimePassword::isEqual(Nb::Data &data)
 {
-  Log::write("compare");
-  if (data.size() < _passwordMatrix.meta()->sizeOfItem())
+  Log::write("compare2");
+  Log::write("datasz", data.size());
+  if (data.size() < _passwordMatrix.meta()->count() / 8)
   {
-
+    Log::write("bad format");
+    return false;
   }
+
   int ham(0);
   Vbp vbp = (Vbp(data.data()));
   for (unsigned b=0; b<_passwordMatrix.meta()->count(); b++)
