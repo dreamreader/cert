@@ -1,7 +1,7 @@
 #include "passwordquery.h"
 
 // Конструктор по умолчанию
-PasswordQuery::PasswordQuery(): Query(Query::Password)
+PasswordQuery::PasswordQuery(): Query(Query::Key)
 {
 }
 
@@ -10,7 +10,7 @@ bool PasswordQuery::create(Nb::Matrix &password)
 {
   LOG
 
-  Query::create(Query::Password);
+  Query::create(Query::Key);
   Log::write("_passwordBlock");
   _passwordBlock.push(password);
 
@@ -35,6 +35,6 @@ bool PasswordQuery::get(Nb::Matrix &password)
 // Проверить заполнение запроса (тип и число блоков)
 bool PasswordQuery::isOk()
 {
-  return ((type() == Query::Password) && (count() == blockCount));
+  return ((type() == Query::Key) && (count() == blockCount));
 }
 

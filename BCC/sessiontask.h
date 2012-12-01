@@ -56,6 +56,12 @@ private:
    */
   bool authenticateBio(Query::QueryHeaderBlock &header);
 
+  /* Перечислить имена контейнеров для пользователя
+   *
+   *  \return false если возникла ошибка протокола
+   */
+  bool enumerateContainers(Query::QueryHeaderBlock &header);
+
   /* Создать одноразовый контейнер для биометрической аутентификации
    *
    *  \return false если возникла ошибка протокола

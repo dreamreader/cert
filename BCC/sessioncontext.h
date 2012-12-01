@@ -3,6 +3,7 @@
 
 #include <QTcpSocket>
 #include <QLibrary>
+#include "ssl/DynLibOpenSSL.h"
 #include "serverdatabase.h"
 #include "nb/nb.h"
 #include "nb/nbc.h"
@@ -20,18 +21,21 @@ static const nbUuid nbUUID_SIGN_PROCESSOR =
 static const nbUuid nbUUID_FINGER_PROCESSOR =
   {0x6b2e0b0b,0xff32,0x4db7,{0xb2,0x2f,0x2e,0x60,0xf6,0xd3,0xc6,0x8c} };
 
-#define   nbhandwrLibPath ("C:/program files/BioCertificationCenter/bin/modules/nbhandwr_base")
-#define   nbfingerLibPath ("C:/program files/BioCertificationCenter/bin/modules/nbfinger_base")
-#define   nbccLibPath     ("C:/program files/BioCertificationCenter/bin/modules/nbcc")
+#define   nbhandwrLibPath ("C:/Program files/BioCertificationCenter/bin/modules/nbhandwr_base")
+#define   nbfingerLibPath ("C:/Program files/BioCertificationCenter/bin/modules/nbfinger_base")
+#define   nbccLibPath     ("C:/Program files/BioCertificationCenter/bin/modules/nbcc")
+#define   sslLibPath      ("C:/Program files/BioCertificationCenter/bin/modules/libeay32")
+#define   privateKeyPath  ("C:/Program files/BioCertificationCenter/data/certificate/mykey.pem")
 #define   querySymbol     ("NbQueryComponent")
 #define   passwordSize    256
 
-///Класс контекста сессии биометрического удостоверяющего центра
+///Класс сессии биометрического удостоверяющего центра
 class SessionContext
 {
 public:
   QTcpSocket&             socket;           ///< сокет клиента
   ServerDatabase*         database;         ///< база данных сервера
+  DynLibOpenSSL           ssl;              ///< библиотека ssl
   Dispatcher              dispatcher;       ///< диспетчер компонентов
   Nbcc                    nbcc;             ///< НПБК
   Nb::Meta                authMeta;         ///< метаописание кода биометрической аутентификации
@@ -45,6 +49,7 @@ public:
   Nbc*                    container;        ///< биометрический контейнер
 
 //Буферы
+  QStringList             containers;       ///< список контейнеров пользователя
   Nb::Data                authKey;          ///< код аутентификации
   Nb::Data                authBioKey;       ///< код биометрической аутентификации
   QList<Nb::Matrix*>      ownBimParams;     ///< биометрические параметры "Свой" для обучения

@@ -25,19 +25,20 @@ public:
     WantAuth = 1,
     WantAuthBio = 2,
     WantContainer = 3,
-    WantRegister = 4,
-    WantSignature = 5,
-    Ans = 6,
-    Data = 7,
-    WaitData = 8,
-    RepeatData = 9,
-    Key = 10,
-    Granted = 11,
-    Denied = 12,
-    Stats = 13,
-    Test = 14,
-    Ok = 15,
-    Err = 16
+    WantContainers = 4,
+    WantRegister = 5,
+    WantSignature = 6,
+    Ans = 7,
+    Data = 8,
+    WaitData = 9,
+    RepeatData = 10,
+    Key = 11,
+    Granted = 12,
+    Denied = 13,
+    Stats = 14,
+    Test = 15,
+    Ok = 16,
+    Err = 17
   };
 
   bool              _skipHeader;         ///< заголовок присоединён

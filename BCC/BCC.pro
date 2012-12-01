@@ -63,7 +63,9 @@ SOURCES   += \
     protocol/containerquery.cpp \
     protocol/containernamesquery.cpp \
     protocol/bimparametersquery.cpp \
-    protocol/authquery.cpp
+    protocol/authquery.cpp \
+    protocol/enumeratecontainersquery.cpp \
+    ssl/DynLibOpenSSL.cpp
 
 
 HEADERS   += \
@@ -124,4 +126,5 @@ HEADERS   += \
     protocol/containerquery.h \
     protocol/containernamesquery.h \
     protocol/bimparametersquery.h \
-    protocol/authquery.h
+    protocol/authquery.h \
+    ssl/DynLibOpenSSL.h

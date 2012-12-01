@@ -39,7 +39,12 @@ public:
   bool stop();
 
 
-  /* Получить контейнер
+  /* Перечислить контейнеры пользователя
+   *
+   */
+  nbResult enumerateContainers(QString userId, QStringList &containers);
+
+  /* Получить одноразовый контейнер
    *
    */
   nbResult getContainer(QString userId, Nbc &container);

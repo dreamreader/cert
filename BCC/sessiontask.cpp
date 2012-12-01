@@ -31,6 +31,11 @@ bool SessionTask::start()
       return createContainer(header);
       break;
 
+    case Query::WantContainers:
+      Log::write("WantContainers");
+      return enumerateContainers(header);
+      break;
+
     case Query::WantSignature:
       Log::write("WantSignature");
       return signData(header);
@@ -163,6 +168,54 @@ bool SessionTask::authenticateBio(Query::QueryHeaderBlock &header)
 
   //Завершить транзакцию
   _session.commitTransaction();
+  return true;
+}
+
+// Перечислить имена контейнеров для пользователя
+bool SessionTask::enumerateContainers(Query::QueryHeaderBlock &header)
+{
+  LOG
+
+  // Проверить НПБК и базу данных
+  if(!_session.nbcc.isCreated() || !_session.database)
+  {
+    stop(/*nbE_INTERNAL_ERROR*/);
+    return false;
+  }
+
+  // Начать транзакцию
+  _session.beginTransaction();
+
+  // ------------------------------------------------------------------------------------
+  // --- Получить имя пользователя
+  // ---
+  EnumerateContainersQuery enumQuery;
+  enumQuery.create(header);
+  enumQuery.read(_session.socket);
+  if (!enumQuery.isOk())
+  {
+    stop(/*nbE_UNEXPECTED_QUERY*/);
+    return false;
+  }
+  Log::write("---> WANT_CONTAINERS: enumerate containers");
+  enumQuery.get(_session.userId);
+
+  // Получить список имён контейнеров
+  _session.database->getContainers(_session.userId, _session.containers);
+
+  // ------------------------------------------------------------------------------------
+  // --- Отправить список имён контейнеров
+  // ---
+  Log::write("<--- ANS: send container names");
+  if (!checkServer())
+  {
+    stop(/*nbE_SERVER_STOPPED*/);
+    return false;
+  }
+  ContainerNamesQuery contQuery;
+  contQuery.create(_session.containers);
+  contQuery.write(_session.socket);
+
   return true;
 }
 
@@ -589,12 +642,30 @@ bool SessionTask::signData(Query::QueryHeaderBlock &header)
   sigQuery.get(_session.userId, _session.data);
 
   // Подписать документ
-  QString sigStr;
+  /*QString sigStr;
   sigStr  = QString::fromUtf8("Пользователь ")
           + _session.userId
           + QString::fromUtf8(" или какой-то злоумышленник, кто иж разберёт то, сформировал биометрическую метку ")
           + QDateTime::currentDateTime().toString();
   int size(0);
+  _session.signature.fromString(sigStr, size, true);*/
+
+  char** sigData;
+  int size;
+
+  QFile keyFile(privateKeyPath);
+  keyFile.open(QFile::ReadOnly);
+  keyFile.close();
+  if (_session.ssl.getSignData(privateKeyPath, (char*)_session.data.data(), _session.data.size(), sigData) < 0)
+  {
+    Log::write("error creating signature   " + _session.ssl.error());
+    stop(/*nbE_INTERNAL_ERROR*/);
+    return false;
+  }
+
+  Log::write("toStr");
+  QString sigStr(*sigData);
+  Log::write("sig: " + sigStr);
   _session.signature.fromString(sigStr, size, true);
 
   // ------------------------------------------------------------------------------------

@@ -9,6 +9,7 @@ SessionContext::SessionContext(QTcpSocket &clientSocket):
   LOG
 
   database = ServerDatabase::open();
+  ssl.load(sslLibPath);
 
   try
   {

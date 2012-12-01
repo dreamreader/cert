@@ -61,76 +61,8 @@ int main(int argc, char *argv[])
     test.at(0, 0).r32[i] = own.at(0, 0).r32[i];
 
   Statistics stats;
-  bool access;
   nbResult rslt;
   QStringList containers;
-
-  /*qDebug() << containers;
-
-  rslt = client.startRegistration("Kulikov S", "Tablet " + QString::number(rand()), regkey);
-  if (nbFAILED(rslt))
-    Log::write("startRegistration failed with error", rslt, true);
-
-  rslt = client.registerContainer(container);
-  if (nbFAILED(rslt))
-    Log::write("registerContainer failed with error", rslt, true);
-
-  QList<Nb::Matrix*> list1;
-  list1.push_back(&own);
-  QList<Nb::Matrix*> list2;
-  list2.push_back(&all);
-  rslt = client.registerData(list1, list2, stats);
-  if (nbFAILED(rslt))
-    Log::write("registerData failed with error", rslt, true);
-
-  list1.clear();
-  list1.push_back(&test);
-  Log::write("ncols", test.ncols());
-  rslt = client.testData(list1);
-  if (nbFAILED(rslt))
-    Log::write("testData 1 failed with error", rslt, true);
-  rslt = client.testData(list1);
-  if (nbFAILED(rslt))
-    Log::write("testData 2 failed with error", rslt, true);
-  rslt = client.testData(list1);
-  if (nbFAILED(rslt))
-    Log::write("testData 3 failed with error", rslt, true);
-
-
-  rslt = client.confirmRegistration();
-  if (nbFAILED(rslt))
-    Log::write("confirmRegistration failed with error", rslt, true);
-
-  //rslt = client.createSignature("Test", "Test", images, result);*/
-
-
-  /*rslt = client.enumerateContainers("Kulikov S", containers);
-  if (nbFAILED(rslt))
-    Log::write("enumerateContainers failed with error", rslt, true);*/
-
-
-  /*rslt = client.startSign("Kulikov S", "Tablet 27958", container);
-  if (nbFAILED(rslt))
-    Log::write("startSign failed with error", rslt, true);
-
-  OneTimePassword wrongPwd(256, false, 0x54);
-  rslt = client.usePassword(wrongPwd, access);
-  if (nbFAILED(rslt))
-    Log::write("usePassword failed with error", rslt, true);
-  qDebug() << "access granted ? " << access;
-
-  OneTimePassword truePwd(256, false, 0x55);
-  rslt = client.usePassword(truePwd, access);
-  if (nbFAILED(rslt))
-    Log::write("usePassword failed with error", rslt, true);
-  qDebug() << "access granted ? " << access;*/
-
-  /*Nb::Data doc(10000);
-  Nb::Data sig;
-  rslt = client.signDocument(doc, sig);
-  if (nbFAILED(rslt))
-    Log::write("signDocument failed with error", rslt, true);*/
-
   bool accessGranted;
   Nb::Data key;
   int32_t s;
@@ -146,6 +78,9 @@ int main(int argc, char *argv[])
   Nb::Data doc(10000);
   Nb::Data sig;
 
+  Log::write("\nEnum containers\n");
+  rslt = client.enumerateContainers("Kulikov S", containers);
+
   Log::write("\nAuthenticate\n");
   rslt = client.authenticate("Kulikov S", key, accessGranted);
 
@@ -154,28 +89,28 @@ int main(int argc, char *argv[])
 
   list1.clear();
   list1.push_back(&test);
-  Log::write("Test 1");
+  Log::write("\nTest 1\n");
   rslt = client.testContainer(list1);
-  Log::write("Test 2");
+  Log::write("\nTest 2\n");
   rslt = client.testContainer(list1);
-  Log::write("Test 3");
+  Log::write("\nTest 3\n");
   rslt = client.testContainer(list1);
 
-  Log::write("Confirm");
+  Log::write("\nConfirm\n");
   rslt = client.confirmContainer();
 
 
-  Log::write("Get Container");
+  Log::write("\nGet Container\n");
   rslt = client.getContainer("Kulikov S", container);
   qDebug() << container.size();
 
-  Log::write("Try authenticate");
+  Log::write("\nTry authenticate\n");
   rslt = client.authenticateBio("Kulikov S", wrongPwd, accessGranted);
 
-  Log::write("Try authenticate");
+  Log::write("\nTry authenticate\n");
   rslt = client.authenticateBio("Kulikov S", truePwd, accessGranted);
 
-  Log::write("Create signature");
+  Log::write("\nCreate signature\n");
   rslt = client.signData("Kulikov S", doc, sig);
   Log::write("sig: " + sig.toString());
 

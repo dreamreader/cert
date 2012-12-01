@@ -5,6 +5,8 @@
 #include "query.h"
 #include "authquery.h"
 #include "startregisterquery.h"
+#include "enumeratecontainersquery.h"
+#include "containernamesquery.h"
 #include "getcontainerquery.h"
 #include "containerquery.h"
 #include "bimparametersquery.h"

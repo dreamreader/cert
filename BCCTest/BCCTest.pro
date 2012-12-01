@@ -49,7 +49,11 @@ SOURCES += main.cpp\
     ../BCC/protocol/containerquery.cpp \
     ../BCC/protocol/bimparametersquery.cpp \
     ../BCC/protocol/authquery.cpp \
-    ../BCC/protocol/documentquery.cpp
+    ../BCC/protocol/documentquery.cpp \
+    ../BCC/protocol/schemequery.cpp \
+    ../BCC/protocol/passwordquery.cpp \
+    ../BCC/protocol/enumeratecontainersquery.cpp \
+    ../BCC/protocol/containernamesquery.cpp
 
 HEADERS += \
     client.h \
@@ -102,4 +106,8 @@ HEADERS += \
     ../BCC/protocol/containerquery.h \
     ../BCC/protocol/bimparametersquery.h \
     ../BCC/protocol/authquery.h \
-    ../BCC/protocol/documentquery.h
+    ../BCC/protocol/documentquery.h \
+    ../BCC/protocol/schemequery.h \
+    ../BCC/protocol/passwordquery.h \
+    ../BCC/protocol/enumeratecontainersquery.h \
+    ../BCC/protocol/containernamesquery.h

@@ -35,6 +35,37 @@ bool Client::stop()
   return !_socket.isOpen();
 }
 
+// Перечислить контейнеры пользователя
+nbResult Client::enumerateContainers(QString userId, QStringList &containers)
+{
+  LOG
+
+  // ------------------------------------------------------------------------------------
+  // --- Отправить идентификаторы и ключ регистрации
+  // ---
+  Log::write("<--- WANT_CONTAINERS: enumerate containers");
+  EnumerateContainersQuery enumQuery;
+  enumQuery.create(userId);
+  enumQuery.write(_socket);
+
+  // ------------------------------------------------------------------------------------
+  // --- Получить запрос на ввод контейнера
+  // ---
+  ContainerNamesQuery contQuery;
+  contQuery.read(_socket);
+  if (!contQuery.isOk() ||
+      !contQuery.get(containers))
+  {
+    stop();
+    return nbE_FAIL/*nbE_UNEXPECTED_QUERY*/;
+  }
+  Log::write("---> ANS: container names list");
+  for (unsigned i=0; i<containers.size(); i++)
+    Log::write(containers[i]);
+
+  return nbS_OK;
+}
+
 // Получить контейнер
 nbResult Client::getContainer(QString userId, Nbc &container)
 {
@@ -72,7 +103,7 @@ nbResult Client::authenticate(QString userId, Nb::Data &key, bool &accessGranted
   // ------------------------------------------------------------------------------------
   // --- Отправить запрос на аутентификацию
   // ---
-  Log::write("<--- WantAuth: auth bstro blya!");
+  Log::write("<--- WantAuth: try authentication");
   AuthQuery authQuery(false);
   authQuery.create(userId, key);
   authQuery.write(_socket);
@@ -104,7 +135,7 @@ nbResult Client::authenticateBio(QString userId, Nb::Data &keyFromBiometrics, bo
   // ------------------------------------------------------------------------------------
   // --- Отправить запрос на аутентификацию
   // ---
-  Log::write("<--- WantAuth: auth bstro blya!");
+  Log::write("<--- WantAuth: try authentication");
   AuthQuery authQuery;
   Log::write("key size", keyFromBiometrics.size());
   authQuery.create(userId, keyFromBiometrics);
@@ -138,7 +169,7 @@ nbResult Client::registerContainer(QString userId, Nbc &container, QList<Nb::Mat
   // ------------------------------------------------------------------------------------
   // --- Отправить идентификатор пользователя
   // ---
-  Log::write("<--- WantRegister: register bstro blya!");
+  Log::write("<--- WantRegister: start registration");
   StartRegisterQuery startRegQuery;
   startRegQuery.create(userId);
   startRegQuery.write(_socket);
