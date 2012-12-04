@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/48px-Accessories-text-editor.svg.png</file>
+        <file>res/48px-Ambox_emblem_arrow.svg.png</file>
+        <file>res/48px-Ambox_emblem_plus.svg.png</file>
+        <file>res/48px-Application-certificate.png</file>
+        <file>res/48px-Applications-other.svg.png</file>
+        <file>res/48px-Applications-system.svg.png</file>
+        <file>res/48px-Application-x-executable.svg.png</file>
+        <file>res/48px-Contact-new.svg.png</file>
+        <file>res/48px-Dialog-accept.svg.png</file>
+        <file>res/48px-Dialog-error-round.svg.png</file>
+        <file>res/48px-Document-open.svg.png</file>
+        <file>res/48px-Document-save.svg.png</file>
+        <file>res/48px-Document-save-as.svg.png</file>
+        <file>res/48px-Edit-paste.svg.png</file>
+        <file>res/48px-Emblem-person-blue.svg.png</file>
+        <file>res/48px-Go-down.svg.png</file>
+        <file>res/48px-Go-up.svg.png</file>
+        <file>res/48px-Locked.svg.png</file>
+        <file>res/48px-Mypaint-icon.svg.png</file>
+        <file>res/48px-Package-x-generic.svg.png</file>
+        <file>res/48px-Preferences-desktop-peripherals.svg.png</file>
+        <file>res/48px-System-lock-screen.svg.png</file>
+        <file>res/48px-System-log-out.svg.png</file>
+        <file>res/48px-System-users.svg.png</file>
+        <file>res/48px-Tools-spanner-hammer.svg.png</file>
+        <file>res/48px-Unlocked.svg.png</file>
+        <file>res/arrow.png</file>
+        <file>res/edit-clear.png</file>
+        <file>res/edit-delete.png</file>
+        <file>res/finish.png</file>
+        <file>res/left-cross-arrow.png</file>
+        <file>res/left-cross-lower-arrow.png</file>
+        <file>res/left-cross-upper-arrow.png</file>
+        <file>res/list-add.png</file>
+        <file>res/list-remove.png</file>
+        <file>res/process-stop.png</file>
+        <file>res/right-cross-arrow.png</file>
+        <file>res/right-cross-lower-arrow.png</file>
+        <file>res/right-cross-upper-arrow.png</file>
+        <file>res/start.png</file>
+        <file>res/varrow.png</file>
+    </qresource>
+</RCC>
