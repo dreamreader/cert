@@ -10,14 +10,14 @@
 #include <QFileDialog>
 #include <QDesktopWidget>
 
-#include "../model/Dispatcher.h"
-#include "../model/ProgramUser.h"
-#include "../model/client.h"
-#include "../model/SchemeConstructor.h"
+#include "../nb/Dispatcher.h"
+#include "../nb/SchemeConstructor.h"
 
 #include "../interface/SchemeVisualiser.h"
 #include "../interface/TestDialog.h"
 #include "../interface/gui.h"
+
+#include "../client.h"
 
 using namespace Nb;
 

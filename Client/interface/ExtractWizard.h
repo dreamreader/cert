@@ -6,13 +6,13 @@
 #include <QDir>
 #include <QDesktopWidget>
 
-#include "../model/Dispatcher.h"
-#include "../model/ProgramUser.h"
-#include "../model/client.h"
+#include "../nb/Dispatcher.h"
 
 #include "../interface/SchemeVisualiser.h"
 #include "../interface/SelectDialog.h"
 #include "../interface/gui.h"
+
+#include "../client.h"
 
 using namespace Nb;
 

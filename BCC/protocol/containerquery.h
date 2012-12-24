@@ -1,7 +1,7 @@
 #ifndef CONTAINERQUERY_H
 #define CONTAINERQUERY_H
 
-#include "query.h"
+#include "Query.h"
 #include "../nb/Container.h"
 #include "../nb/Matrix.h"
 

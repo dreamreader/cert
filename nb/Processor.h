@@ -7,8 +7,7 @@
 #include <QLibrary>
 
 #include "../nb/nb.h"
-
-#include "../qtnb/Matrix.h"
+#include "../nb/Matrix.h"
 
 #include "ModuleInfo.h"
 #include "BimBase.h"

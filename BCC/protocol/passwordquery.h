@@ -1,36 +1,36 @@
 #ifndef PASSWORDQUERY_H
 #define PASSWORDQUERY_H
 
-#include "query.h"
+#include "Query.h"
 
 class PasswordQuery : public Query
 {
 public:
-  //Включить все сигнатуры перегруженного метода
+  //Р’РєР»СЋС‡РёС‚СЊ РІСЃРµ СЃРёРіРЅР°С‚СѓСЂС‹ РїРµСЂРµРіСЂСѓР¶РµРЅРЅРѕРіРѕ РјРµС‚РѕРґР°
   using Query::create;
 
 public:
   static const unsigned blockCount = 1;
 
-  Query::DataBlock   _passwordBlock;           ///< блок пароля
+  Query::DataBlock   _passwordBlock;           ///< Р±Р»РѕРє РїР°СЂРѕР»СЏ
 
 public:
-  /* Конструктор
+  /* РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
    *
    */
   PasswordQuery();
 
-  /* Создать запрос с заданными данными блоков
+  /* РЎРѕР·РґР°С‚СЊ Р·Р°РїСЂРѕСЃ СЃ Р·Р°РґР°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё Р±Р»РѕРєРѕРІ
    *
    */
   bool create(Nb::Matrix &password);
 
-  /* Получить данные блоков запроса
+  /* РџРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃР°
    *
    */
   bool get(Nb::Matrix &password);
 
-  /* Проверить заполнение запроса (тип и число блоков)
+  /* РџСЂРѕРІРµСЂРёС‚СЊ Р·Р°РїРѕР»РЅРµРЅРёРµ Р·Р°РїСЂРѕСЃР° (С‚РёРї Рё С‡РёСЃР»Рѕ Р±Р»РѕРєРѕРІ)
    *
    */
   bool isOk();

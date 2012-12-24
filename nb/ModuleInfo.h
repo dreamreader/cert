@@ -3,7 +3,7 @@
 
 #include <QList>
 
-#include "../qtnb/Uuid.h"
+#include "../nb/Uuid.h"
 
 using namespace Nb;
 

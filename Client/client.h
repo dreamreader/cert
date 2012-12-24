@@ -4,13 +4,12 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QHostAddress>
-#include "../protocol/log.h"
-#include "../protocol/queries.h"
-#include "../nb/nb.h"
-#include "../model/Nbc.h"
 
-#define tcpServerAddress      ("localhost")
-#define tcpServerPort         (31111)
+#include "../BCC/protocol/log.h"
+#include "../BCC/protocol/queries.h"
+#include "../nb/nb.h"
+#include "../nb/Nbc.h"
+
 
 /// Класс клиента биометрического удостоверяющего центра
 class Client: public QObject
@@ -19,13 +18,17 @@ class Client: public QObject
 
 private:
   static QTcpSocket  _socket;        ///< сокет
+  static QHostAddress _address;
+  static uint16_t _port;
 
 public:
+
+  static bool setup (QString address, uint16_t port);
 
   /* Запустить сессию
    *
    */
-  static bool start(QString address = tcpServerAddress, int port = tcpServerPort);
+  static bool start();
 
   /* Остановить сессию
    *

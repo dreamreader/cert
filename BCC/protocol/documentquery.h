@@ -1,7 +1,7 @@
 #ifndef DOCUMENTQUERY_H
 #define DOCUMENTQUERY_H
 
-#include "query.h"
+#include "Query.h"
 
 class DocumentQuery : public Query
 {

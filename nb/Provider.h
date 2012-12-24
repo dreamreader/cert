@@ -8,8 +8,8 @@
 
 #include "../nb/nb.h"
 
-#include "../qtnb/Uuid.h"
-#include "../qtnb/Data.h"
+#include "../nb/Uuid.h"
+#include "../nb/Data.h"
 
 #include "ModuleInfo.h"
 #include "BimBase.h"

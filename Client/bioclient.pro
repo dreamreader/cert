@@ -13,98 +13,102 @@ QMAKE_CXXFLAGS += -fpermissive -Wno-unused-parameter -Wno-write-strings
 DEFINES += UNTITLED_LIBRARY
 
 SOURCES += \
+    ../nb/Vbp.cpp \
+    ../nb/Uuid.cpp \
+    ../nb/SlotId.cpp \
+    ../nb/Slot.cpp \
+    ../nb/Scheme.cpp \
+    ../nb/Meta.cpp \
+    ../nb/Matrix.cpp \
+    ../nb/Enums.cpp \
+    ../nb/Data.cpp \
+    ../nb/Container.cpp \
+    ../nb/Bim.cpp \
     interface/SchemeVisualiser.cpp \
     interface/ExtractWizard.cpp \
-    model/User.cpp \
-    model/Statistics.cpp \
-    model/SchemeConstructor.cpp \
-    model/Provider.cpp \
-    model/ProgramUser.cpp \
-    model/Processor.cpp \
-    model/Nbcc.cpp \
-    model/Nbc.cpp \
-    model/InputScheme.cpp \
-    model/Dispatcher.cpp \
-    model/BimBase.cpp \
-    qtnb/Vbp.cpp \
-    qtnb/Uuid.cpp \
-    qtnb/SlotId.cpp \
-    qtnb/Slot.cpp \
-    qtnb/Scheme.cpp \
-    qtnb/Meta.cpp \
-    qtnb/Matrix.cpp \
-    qtnb/Enums.cpp \
-    qtnb/Data.cpp \
-    qtnb/Container.cpp \
-    qtnb/Bim.cpp \
-    dll.cpp \
-    protocol/testquery.cpp \
-    protocol/statsquery.cpp \
-    protocol/startsignaturequery.cpp \
-    protocol/startregisterquery.cpp \
-    protocol/schemequery.cpp \
-    protocol/resultquery.cpp \
-    protocol/query.cpp \
-    protocol/passwordquery.cpp \
-    protocol/log.cpp \
-    protocol/documentquery.cpp \
-    protocol/containerquery.cpp \
-    protocol/bimparametersquery.cpp \
     interface/SelectDialog.cpp \
     interface/TrainWizard.cpp \
     interface/TestDialog.cpp \
-    protocol/enumeratecontainersquery.cpp \
-    protocol/containernamesquery.cpp \
-    model/client.cpp
+    ../BCC/protocol/testquery.cpp \
+    ../BCC/protocol/statsquery.cpp \
+    ../BCC/protocol/startsignaturequery.cpp \
+    ../BCC/protocol/startregisterquery.cpp \
+    ../BCC/protocol/signaturequery.cpp \
+    ../BCC/protocol/schemequery.cpp \
+    ../BCC/protocol/resultquery.cpp \
+    ../BCC/protocol/query.cpp \
+    ../BCC/protocol/passwordquery.cpp \
+    ../BCC/protocol/log.cpp \
+    ../BCC/protocol/getcontainerquery.cpp \
+    ../BCC/protocol/enumeratecontainersquery.cpp \
+    ../BCC/protocol/documentquery.cpp \
+    ../BCC/protocol/containerquery.cpp \
+    ../BCC/protocol/containernamesquery.cpp \
+    ../BCC/protocol/bimparametersquery.cpp \
+    ../BCC/protocol/authquery.cpp \
+    dll.cpp \
+    client.cpp \
+    ../nb/InputScheme.cpp \
+    ../nb/Dispatcher.cpp \
+    ../nb/Provider.cpp \
+    ../nb/Processor.cpp \
+    ../nb/Nbcc.cpp \
+    ../nb/Nbc.cpp \
+    ../nb/BimBase.cpp \
+    ../nb/Statistics.cpp \
+    ../nb/SchemeConstructor.cpp
 
 HEADERS +=\
+    ../nb/Statistics.h \
+    ../nb/SchemeConstructor.h \
+    ../nb/Provider.h \
+    ../nb/ProgramUser.h \
+    ../nb/Processor.h \
+    ../nb/Nbcc.h \
+    ../nb/Nbc.h \
+    ../nb/ModuleInfo.h \
+    ../nb/InputScheme.h \
+    ../nb/Dispatcher.h \
+    ../nb/BimBase.h \
+    ../nb/Vbp.h \
+    ../nb/Uuid.h \
+    ../nb/SlotId.h \
+    ../nb/Slot.h \
+    ../nb/Scheme.h \
+    ../nb/Meta.h \
+    ../nb/Matrix.h \
+    ../nb/Enums.h \
+    ../nb/Data.h \
+    ../nb/Container.h \
+    ../nb/Bim.h \
     interface/SchemeVisualiser.h \
     interface/ExtractWizard.h \
-    model/User.h \
-    model/Statistics.h \
-    model/SchemeConstructor.h \
-    model/Provider.h \
-    model/ProgramUser.h \
-    model/Processor.h \
-    model/Nbcc.h \
-    model/Nbc.h \
-    model/ModuleInfo.h \
-    model/InputScheme.h \
-    model/Dispatcher.h \
-    model/BimBase.h \
-    qtnb/Vbp.h \
-    qtnb/Uuid.h \
-    qtnb/SlotId.h \
-    qtnb/Slot.h \
-    qtnb/Scheme.h \
-    qtnb/Meta.h \
-    qtnb/Matrix.h \
-    qtnb/Enums.h \
-    qtnb/Data.h \
-    qtnb/Container.h \
-    qtnb/Bim.h \
-    dll.h \
-    protocol/testquery.h \
-    protocol/statsquery.h \
-    protocol/startsignaturequery.h \
-    protocol/startregisterquery.h \
-    protocol/schemequery.h \
-    protocol/resultquery.h \
-    protocol/Query.h \
-    protocol/queries.h \
-    protocol/passwordquery.h \
-    protocol/nbqueryheader.h \
-    protocol/log.h \
-    protocol/documentquery.h \
-    protocol/containerquery.h \
-    protocol/bimparametersquery.h \
     interface/SelectDialog.h \
     interface/TrainWizard.h \
     interface/TestDialog.h \
     interface/gui.h \
-    protocol/enumeratecontainersquery.h \
-    protocol/containernamesquery.h \
-    model/client.h
+    ../BCC/protocol/testquery.h \
+    ../BCC/protocol/statsquery.h \
+    ../BCC/protocol/startsignaturequery.h \
+    ../BCC/protocol/startregisterquery.h \
+    ../BCC/protocol/signaturequery.h \
+    ../BCC/protocol/schemequery.h \
+    ../BCC/protocol/resultquery.h \
+    ../BCC/protocol/Query.h \
+    ../BCC/protocol/queries.h \
+    ../BCC/protocol/passwordquery.h \
+    ../BCC/protocol/nbqueryheader.h \
+    ../BCC/protocol/log.h \
+    ../BCC/protocol/getcontainerquery.h \
+    ../BCC/protocol/enumeratecontainersquery.h \
+    ../BCC/protocol/documentquery.h \
+    ../BCC/protocol/containerquery.h \
+    ../BCC/protocol/containernamesquery.h \
+    ../BCC/protocol/bimparametersquery.h \
+    ../BCC/protocol/authquery.h \
+    dll.h \
+    client.h
+
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

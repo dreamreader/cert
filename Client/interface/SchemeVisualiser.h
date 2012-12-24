@@ -4,8 +4,8 @@
 #include <QLabel>
 #include <QTableWidget>
 
-#include "../model/InputScheme.h"
-#include "../model/ModuleInfo.h"
+#include "../nb/InputScheme.h"
+#include "../nb/ModuleInfo.h"
 
 #define SCHEMEVISUALISER_ARROW_SIZE 32
 #define SCHEMEVISUALISER_START_SIZE 96

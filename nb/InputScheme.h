@@ -4,10 +4,10 @@
 //Схема ввода биометрических данных
 //note в схеме все слоты, связанные блоком альтернативы, должны идти подряд
 
-#include "../qtnb/Uuid.h"
-#include "../qtnb/SlotId.h"
+#include "../nb/Uuid.h"
+#include "../nb/SlotId.h"
 
-#include "Nbc.h"
+#include "../nb/Nbc.h"
 
 using namespace Nb;
 

@@ -1,4 +1,4 @@
-#include "query.h"
+#include "Query.h"
 
 
 // Конструктор по умолчанию

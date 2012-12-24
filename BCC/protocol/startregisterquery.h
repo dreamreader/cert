@@ -1,7 +1,7 @@
 #ifndef STARTREGISTERQUERY_H
 #define STARTREGISTERQUERY_H
 
-#include "query.h"
+#include "Query.h"
 #include "../nb/Container.h"
 #include "../nb/Matrix.h"
 #include "../nb/Data.h"

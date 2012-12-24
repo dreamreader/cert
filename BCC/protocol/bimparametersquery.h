@@ -1,7 +1,7 @@
 #ifndef BIMSQUERY_H
 #define BIMSQUERY_H
 
-#include "query.h"
+#include "Query.h"
 #include "../nb/Container.h"
 #include "../nb/Matrix.h"
 

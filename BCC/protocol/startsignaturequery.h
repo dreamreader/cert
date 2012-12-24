@@ -1,7 +1,7 @@
 #ifndef STARTSIGNATUREQUERY_H
 #define STARTSIGNATUREQUERY_H
 
-#include "query.h"
+#include "Query.h"
 #include "../nb/Container.h"
 #include "../nb/Matrix.h"
 

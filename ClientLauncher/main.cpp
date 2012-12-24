@@ -3,10 +3,10 @@
 #include <QDebug>
 #include <QDir>
 
-#include "nb/nb.h"
+#include "../nb/nb.h"
 
-#include "qtnb/Data.h"
-#include "qtnb/Uuid.h"
+#include "../nb/Data.h"
+#include "../nb/Uuid.h"
 
 #define ERROR(s) qDebug () << s;
 

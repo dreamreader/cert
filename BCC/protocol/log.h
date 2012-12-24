@@ -4,8 +4,8 @@
 #include <QFile>
 #include <QMutex>
 #include <QTextStream>
-#include "../nb/nb.h"
-#include "../nb/nbc.h"
+#include "../../nb/nb.h"
+#include "../../nb/Nbc.h"
 
 #define   LOG               Log::Tab tab; \
                             if (0) tab = tab;

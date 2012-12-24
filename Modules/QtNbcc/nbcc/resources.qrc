@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/info">
-        <file alias="nbcc">resources/nbcc.xml</file>
-    </qresource>
-</RCC>

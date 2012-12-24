@@ -1,7 +1,7 @@
 #ifndef GETCONTAINERQUERY_H
 #define GETCONTAINERQUERY_H
 
-#include "query.h"
+#include "Query.h"
 
 class GetContainerQuery : public Query
 {

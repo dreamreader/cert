@@ -168,23 +168,12 @@ void TrainWizard::change () {
 
     //Обучение
     int errc;
-    static nbResult registerContainer(QString userId, Nbc &container, QList<Nb::Matrix*> &ownParams, Statistics& stats);
-
-    switch (errc = Client::registerContainer(_nbc))
+    switch (errc = Client::registerContainer(_username, _nbc, _params_own, _stats))
     {
     case nbS_OK:
         break;
     default:
         qDebug() << "failed to registerContainer, errc= " << Result (errc);
-        throw QString::fromUtf8 ("Невозможно зарегистрировать пользователя");
-    }
-
-    switch (errc = Client::registerData(_params_own, _params_foreign, _stats))
-    {
-    case nbS_OK:
-        break;
-    default:
-        qDebug() << "failed to registerData, errc= " << Result (errc);
         throw QString::fromUtf8 ("Невозможно зарегистрировать пользователя");
     }
 
@@ -399,7 +388,7 @@ void TrainWizard::finishClicked (int id)
 {
   int errc;
   if (id == QDialog::Accepted) {
-    switch (errc = Client::confirmRegistration())
+    switch (errc = Client::confirmContainer())
     {
     case nbS_OK:
       break;

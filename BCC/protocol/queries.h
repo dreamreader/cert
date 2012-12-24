@@ -2,7 +2,7 @@
 #define QUERIES_H
 
 #include "nbqueryheader.h"
-#include "query.h"
+#include "Query.h"
 #include "authquery.h"
 #include "startregisterquery.h"
 #include "enumeratecontainersquery.h"

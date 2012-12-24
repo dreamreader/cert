@@ -7,7 +7,7 @@
 
 #include <QDir>
 
-#include "../qtnb/Uuid.h"
+#include "../nb/Uuid.h"
 
 #include "Provider.h"
 #include "Processor.h"

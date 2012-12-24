@@ -4,7 +4,7 @@
 
 #include <QFile>
 
-#include "../qtnb/Container.h"
+#include "../nb/Container.h"
 
 //Пользовательские типы
 #define nbBT_SCHEME_NUMBER (129)

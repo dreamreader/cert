@@ -1,8 +1,31 @@
 #include "dll.h"
 
-//------------------------------------------------------------
 
-Q_DECL_EXPORT nbResult sign(const nbData user_id, const nbData data, nbData signature)
+
+
+
+
+//Установка параметров сервера
+Q_DECL_EXPORT int setup
+(
+  const char *server_address,
+  const uint16_t server_port
+)
+{
+  Client::setup (QString::fromUtf8 (server_address), server_port);
+  return E_OK;
+}
+
+
+//Подпись
+Q_DECL_EXPORT int sign                //< возвращается результат (см. выше)
+(
+  const char *username,               //< (вх) имя пользователя (null-terminated UTF-8)
+  const char *data,                   //< (вх) данные для подписи
+  uint32_t data_size,                 //< (вх) размер данных для подписи
+  uint32_t signature_size,            //< (вх) длина подписи
+  char *signature                     //< (вых) подпись
+)
 {
   int errc;
   qDebug () << "Now at 'sign' function";
@@ -10,24 +33,19 @@ Q_DECL_EXPORT nbResult sign(const nbData user_id, const nbData data, nbData sign
   //--------------------------
   //---Проверяем параметры
   //---
-  if (!user_id || !data || !signature) {
+  if ( !signature || !data || !username ) {
     qDebug () << "returning nbE_PARAM\r\n" << "  some parameters are NULL";
-    return nbE_PARAM;
+    return E_PARAM;
   }
-  if (((Data)data).size() == 0) {
-    qDebug () << "returning nbE_PARAM\r\n" << "  data.size == 0";
-    return nbE_PARAM;
-  }
-  if (((Data)signature).size() < SIGNATURE_SIZE / 8) {
-    ((Data)signature).setWishfulSize(SIGNATURE_SIZE / 8);
-    qDebug () << "returning nbE_INSUFFICIENT_BUFFER\r\n" << "  data.size < 32\r\n" << "  setting signature.WishfulSize = 32";
-    return nbE_INSUFFICIENT_BUFFER;
+
+  if ( (signature_size == 0) || (data_size == 0) || (strlen (username) == 0) ) {
+    qDebug () << "returning nbE_PARAM\r\n" << "  some parameters are empty";
+    return E_PARAM;
   }
 
   try {
-    QString user_name;
-    user_name = user_id.toString ();
-
+    QString qusername = QString::fromUtf8(username);
+    qDebug () << "username = " << qusername;
 
     //--------------------------
     //---Соединяемся с сервером
@@ -45,7 +63,7 @@ Q_DECL_EXPORT nbResult sign(const nbData user_id, const nbData data, nbData sign
     //---Получаем список контейнеров
     //---
     QStringList nbcs;
-    switch (errc = Client::enumerateContainers( ((Data)username).toString(), nbcs))
+    switch (errc = Client::enumerateContainers(qusername, nbcs))
     {
     case nbS_OK:
         break;
@@ -56,14 +74,14 @@ Q_DECL_EXPORT nbResult sign(const nbData user_id, const nbData data, nbData sign
     if (nbcs.size () < 1) {
       qDebug () << "returning nbS_CANCEL\r\n" << "  username is not register on server";
       Client::stop ();
-      return nbS_SKIP;
+      return E_SKIP;
     }
 
     //--------------------------
     //---Получение контейнера
     //---
     Nbc nbc;
-    switch (errc = Client::getContainer(user_name, nbc))
+    switch (errc = Client::getContainer(username, nbc))
     {
     case nbS_OK:
         break;
@@ -80,13 +98,15 @@ Q_DECL_EXPORT nbResult sign(const nbData user_id, const nbData data, nbData sign
     if (dlg.exec() == QDialog::Rejected) {
       qDebug () << "returning nbS_CANCEL\r\n" << "  user cancels the dialog";
       Client::stop ();
-      return nbS_CANCEL;
+      return E_CANCEL;
     }
 
     //--------------------------
     //---Подпись документа
     //---
-    switch (errc = Client::signData(user_name, (Data &) data, (Data &) signature))
+    Data data, sig;
+    data.copy (data, data_size);
+    switch (errc = Client::signData(username, data, sig))
     {
     case nbS_OK:
         break;
@@ -94,38 +114,46 @@ Q_DECL_EXPORT nbResult sign(const nbData user_id, const nbData data, nbData sign
         qDebug() << "failed to signDocument, errc= " << Result (errc);
         throw QString::fromUtf8 ("Невозможно подписать документ");
     }
+    memcpy (signature, (nbData)sig, signature_size);
 
   } catch (QString e) {
     Client::stop ();
     Gui::error(e);
-    return nbE_FAIL;
+    return E_FAIL;
   }
 
   Client::stop ();
-
-  return nbS_OK;
+  return E_OK;
 }
 
 //------------------------------------------------------------
 
-Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
+Q_DECL_EXPORT int registrate          //< возвращается результат (см. выше)
+(
+  const char *key,                    //< (вх) ключ регистрации
+  int key_size,                       //< (вх) длина ключа регистрации
+  const char *username                //< (вх) имя пользователя (null-terminated UTF-8)
+)
 {
   int errc;
-
   qDebug () << "Now at 'registrate' function";
 
 
   //--------------------------
   //---Проверка параметров
   //---
-  if (!user_id) {
+  if (!key || !username) {
     qDebug () << "returning nbE_PARAM\r\n" << "  some parameters are NULL";
     return nbE_PARAM;
   }
 
+  if ( (key_size == 0) || (strlen (username) == 0) ) {
+    qDebug () << "returning nbE_PARAM\r\n" << "  some parameters are empty";
+    return nbE_PARAM;
+  }
+
   try {
-    QString user_name;
-    user_name = user_id.toString ();
+    QString qusername = QString::fromUtf8(username);
 
 
     //--------------------------
@@ -140,8 +168,14 @@ Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
         throw QString::fromUtf8 ("Невозможно соединиться с сервером");
     }
 
+
+    //--------------------------
+    //---Аутентификация
+    //---
+    Data key;
+    key.copy (key, key_size);
     bool granted = false;
-    switch (errc = authenticate(user_name, (Data &)key, &granted))
+    switch (errc = Client::authenticate(qusername, (Data &)key, granted))
     {
     case nbS_OK:
       break;
@@ -152,7 +186,7 @@ Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
 
     if (!granted) {
         qDebug () << "returning nbS_SKIP\r\n" << "  crypto auth unsuccesful";
-        return nbS_SKIP;
+        return E_SKIP;
 
     }
 
@@ -160,7 +194,7 @@ Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
     //---Получаем список контейнеров
     //---
     QStringList nbcs;
-    switch (errc = Client::enumerateContainers( ((Data)username).toString(), nbcs))
+    switch (errc = Client::enumerateContainers(qusername, nbcs))
     {
     case nbS_OK:
         break;
@@ -176,7 +210,7 @@ Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
       //---
 
       Nbc nbc;
-      switch (errc = Client::getContainer(((Data)username).toString(), nbc))
+      switch (errc = Client::getContainer(username, nbc))
       {
       case nbS_OK:
           break;
@@ -193,7 +227,7 @@ Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
       if (dlg1.exec() == QDialog::Rejected) {
         qDebug () << "returning nbS_CANCEL\r\n" << "  user cancels the dialog";
         Client::stop ();
-        return nbS_CANCEL;
+        return E_CANCEL;
       }
     }
 
@@ -201,12 +235,11 @@ Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
     //---Ввод биометрии
     //-----ввод биометрии
     //-----registerContainer ()
-    //-----registerData ()
-    //-----confirmRegistration ()
-    TrainWizard dlg2 (((Data)username).toString());
+    //-----confirmContainer ()
+    TrainWizard dlg2 (username);
     if (dlg2.exec() == QDialog::Rejected) {
       qDebug () << "returning nbS_CANCEL\r\n" << "user cancels the dialog";
-      return nbS_CANCEL;
+      return E_CANCEL;
     }
 
     Client::stop ();
@@ -214,8 +247,8 @@ Q_DECL_EXPORT nbResult registrate(const nbData user_id, const nbData key)
   } catch (QString e) {
     Client::stop ();
     Gui::error(e);
-    return nbE_FAIL;
+    return E_FAIL;
   }
 
-  return nbS_OK;
+  return E_OK;
 }

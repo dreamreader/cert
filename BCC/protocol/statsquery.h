@@ -1,8 +1,8 @@
 #ifndef STATSQUERY_H
 #define STATSQUERY_H
 
-#include "query.h"
-#include "../nb/statistics.h"
+#include "Query.h"
+#include "../nb/Statistics.h"
 
 class StatsQuery : public Query
 {

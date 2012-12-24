@@ -8,8 +8,7 @@
 #include <QFile>
 
 #include "../nb/nb.h"
-
-#include "../qtnb/Bim.h"
+#include "../nb/Bim.h"
 
 using namespace std;
 using namespace Nb;

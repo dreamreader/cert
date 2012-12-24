@@ -50,6 +50,9 @@ void ExtractWizard::paintEvent (QPaintEvent * event)
 
 void ExtractWizard::changePage () {
   int dif = 0;
+  Data code;
+  bool granted = false;
+
   switch (currentId ()) {
   case 1: //Ввод биометрии
     this->resize(QSize (720, 520));
@@ -118,34 +121,21 @@ void ExtractWizard::changePage () {
 
     //Извлечение
 
-    if (!_modules.getNbcc(UUID_NBCC, _nbcc)) {
-      throw QString::fromUtf8("Модуль нейросетевого преобразователя не найден!");
-    }
-
-    if (!_etalon.isEmpty()) {
-      _code.remeta(*_etalon.meta());
-      _code.resize(_etalon.ncols());
-    }
-    _nbcc.extract(_nbc, _code, _params_own);
-
-
-
-    static nbResult authenticateBio(QString userId, Nb::Data &keyFromBiometrics, bool &accessGranted);
-
-    switch (int errc = Client::usePassword(_code, _result))
+    switch (int errc = Client::authenticateBio(_username, code, granted) )
     {
     case nbS_OK:
         break;
     default:
-        qDebug() << "failed to usePassword, errc=" << Result (errc);
+        //qDebug() << "failed to usePassword, errc=" << Result (errc);
         throw QString::fromUtf8 ("Невозможно проверить токен доступа");
     }
 
-    if (_result) {
+    if (granted) {
       accept ();
     } else {
       ui->page3->setTitle(QString::fromUtf8("Аутентификация неудачна!") + QString::fromUtf8("\r\n Нажмите \"Назад\", чтобы попытаться снова"));
     }
+
     _extracted = true;
     accept ();
     return;

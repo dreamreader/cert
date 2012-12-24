@@ -1,7 +1,7 @@
 #ifndef SIGNATUREQUERY_H
 #define SIGNATUREQUERY_H
 
-#include "query.h"
+#include "Query.h"
 
 class SignatureQuery : public Query
 {

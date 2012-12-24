@@ -1,7 +1,7 @@
 #ifndef AUTHQUERY_H
 #define AUTHQUERY_H
 
-#include "query.h"
+#include "Query.h"
 
 class AuthQuery : public Query
 {

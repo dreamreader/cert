@@ -1,7 +1,7 @@
 #ifndef CONTAINERNAMESQUERY_H
 #define CONTAINERNAMESQUERY_H
 
-#include "query.h"
+#include "Query.h"
 #include <QStringList>
 
 class ContainerNamesQuery : public Query

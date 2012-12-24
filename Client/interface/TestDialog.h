@@ -6,8 +6,8 @@
 #include <QDir>
 #include <QHBoxLayout>
 
-#include "../model/Dispatcher.h"
-#include "../model/client.h"
+#include "../nb/Dispatcher.h"
+#include "../client.h"
 
 #include "../interface/SchemeVisualiser.h"
 #include "../interface/SelectDialog.h"

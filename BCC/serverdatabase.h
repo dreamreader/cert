@@ -11,8 +11,8 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include "protocol/log.h"
-#include "nb/nb.h"
-#include "nb/nbclasses.h"
+#include "../nb/nb.h"
+#include "../nb/nbclasses.h"
 
 #define       databasePath      ("C:/program files/BioCertificationCenter/data/bcc.sqlite3.db")
 #define       containerPathEx   ("C:/program files/BioCertificationCenter/data/containers/")

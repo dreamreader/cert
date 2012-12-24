@@ -1,7 +1,7 @@
 #ifndef TESTQUERY_H
 #define TESTQUERY_H
 
-#include "query.h"
+#include "Query.h"
 
 class TestQuery : public Query
 {

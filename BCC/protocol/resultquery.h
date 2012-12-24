@@ -1,7 +1,7 @@
 #ifndef RESULTQUERY_H
 #define RESULTQUERY_H
 
-#include "query.h"
+#include "Query.h"
 
 class ResultQuery : public Query
 {

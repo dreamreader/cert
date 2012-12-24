@@ -137,12 +137,12 @@ void TestDialog::test ()
 
   try { //Извлечение
 
-    switch (int errc = Client::testData(_params_own))
+    switch (int errc = Client::testContainer(_params_own))
     {
     case nbS_OK:
       break;
     default:
-      qDebug() << "failed to testData, errc=" << Result (errc);
+      //qDebug() << "failed to testData, errc=" << Result (errc);
       throw QString::fromUtf8 ("Невозможно провести тестирование");
     }
   } catch (QString error) {
