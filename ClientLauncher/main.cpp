@@ -10,8 +10,11 @@
 
 #define ERROR(s) qDebug () << s;
 
-typedef nbResult (*SIGN_FUNC)(const nbData username, const nbData data, nbData signature);
-typedef nbResult (*REGISTER_FUNC)(const nbData username, const nbData key);
+
+
+typedef int (*SETUP_FUNC)(const char *server_address, const uint16_t server_port);
+typedef int (*SIGN_FUNC)(const char *username, const char *data, uint32_t data_size, uint32_t signature_size, char *signature);
+typedef int (*REGISTER_FUNC)(const char *key, int key_size, const char *username);
 
 using namespace Nb;
 
@@ -23,11 +26,26 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     SIGN_FUNC sign_dll = NULL;
     REGISTER_FUNC registr_dll = NULL;
+    SETUP_FUNC setup_dll = NULL;
+
+
 
     if (argc < 2) ERROR("No parameters set");
 
     QLibrary lib ("../bioclient/untitled");
     if (!lib.load ()) ERROR(lib.errorString());
+
+    setup_dll = (SIGN_FUNC)lib.resolve ("setup");
+    if (!sign_dll) ERROR("Cannot resolve symbol \"setup\"")
+
+    Data key(32), username;
+    int size = 0;
+    qDebug () << "calling \"setup\"";
+    int errc = setup_dll ("192.166.0.1", 3030);
+    qDebug () << "errc = " << (Result)errc;
+
+
+
 
     if ((QString)argv[1] == (QString) "sign") {
 
@@ -60,7 +78,8 @@ void sign (SIGN_FUNC func)
   username.fromString((QString)"test", size, true);
 
   qDebug () << "Data to server: " << username << data;
-  int errc = func (username, data, signature);
+  qDebug () << "calling \"sign\"";
+  int errc = func (username, data, 1024, 32, signature);
   qDebug () << "errc = " << (Result)errc;
   qDebug () << "Data from server: " << signature;
 
@@ -77,7 +96,8 @@ void registr (REGISTER_FUNC func)
   username.fromString((QString)"test", size, true);
 
   qDebug () << "Data to server: " << username;
-  int errc = func (username, key);
+  qDebug () << "calling \"registr\"";
+  int errc = func (key, 32, username);
   qDebug () << "errc = " << (Result)errc;
   qDebug () << "Data from server: " << key;
 
